@@ -14,6 +14,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -78,11 +81,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         @Override
         protected User doInBackground(String... params) {
             try {
-                String hospitalNumber = params[0];
-                final String url = "http://localhost:9000/patient/register";
+                String hospitalNumber = "{\"hospitalNumber\":\"" + params[0] + "\"}";
+                HttpHeaders requestHeaders = new HttpHeaders();
+                requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<String> requestEntity = new HttpEntity<String>(hospitalNumber, requestHeaders);
+                final String url = "http://192.168.1.69:9000/patient/prescription";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                return restTemplate.postForObject(url, hospitalNumber, User.class);
+                Prescription prescription = restTemplate.getForObject(url, Prescription.class, requestEntity);
+                return new User(hospitalNumber, prescription);
             } catch (RestClientException e) {
                 Log.e("MainActivity", e.getMessage(), e);
             }
@@ -102,7 +109,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         //handle if no user returned ?null returned -> ie show "user not found" msge and return to input
         //error -> back to first screen with error message
         Intent doseInputActivity = new Intent(getApplicationContext(), DoseInputActivity.class);
-        doseInputActivity.putExtra("user", user);
+        //doseInputActivity.putExtra("user", user);
         startActivity(doseInputActivity);
     }
 }

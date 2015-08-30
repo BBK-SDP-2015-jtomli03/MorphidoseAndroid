@@ -48,7 +48,4 @@ android:textColorLink="@color/magenta"-->
     android:layout_width="fill_parent">
 </Button>
 
-
-
-
 </LinearLayout>
