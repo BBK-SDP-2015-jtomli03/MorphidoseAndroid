@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Morphidose</string>
+    <string name="action_settings">Settings</string>
+    <string name="welcome">Welcome to Morphidose. To get you started please ensure you have an internet connection,
+        then enter your hospital number and date of birth below, and press the submit button.</string>
+    <string name="confirm_details">Please confirm your details;</string>
+    <string name="hospitalNumber">Hospital Number</string>
+    <string name="submit">Submit</string>
+    <string name="hello">Hello</string>
+    <string name="dose_input">Morphidose Dose Input</string>
+    <string name="register">Morphidose Register</string>
+
+
+
+
+    <string name="link_text">This is a <a href="http://www.androidforbeginners.com">link</a></string>
+
+
+</resources>

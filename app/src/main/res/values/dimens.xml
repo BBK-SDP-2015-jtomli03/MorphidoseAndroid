@@ -1,0 +1,10 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="morphidose_title_size">30sp</dimen>
+    <dimen name="font_size">25sp</dimen>
+    <dimen name="h1_padding">6dp</dimen>
+    <dimen name="margin_between_p">10dp</dimen>
+
+</resources>
