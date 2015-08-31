@@ -1,11 +1,9 @@
 package com.morphidose;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -18,15 +16,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 
-public class MainActivity extends ActionBarActivity implements View.OnClickListener{
+public class SetUpActivity extends ActionBarActivity implements View.OnClickListener{
     MorphidoseDbHelper mDbHelper;
     
     @Override
@@ -66,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     }
 
     public AlertDialog createAlertBox(final String hospitalNumber){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SetUpActivity.this);
         alertDialogBuilder
                 .setMessage("Submit the hospital number " + hospitalNumber + "?")
                 .setCancelable(false)
@@ -89,7 +82,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     }
 
     public AlertDialog noWIFIAlertBox(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SetUpActivity.this);
         alertDialogBuilder
                 .setMessage("You currently have no internet connection. Please ensure you have a connection before trying again.")
                 .setCancelable(true)
@@ -102,7 +95,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     }
 
     public AlertDialog userNotFoundAlertBox(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SetUpActivity.this);
         alertDialogBuilder
                 .setMessage("Sorry - we couldn't find that hospital number in the Morphidose system. Please check the number and try again.")
                 .setCancelable(true)
@@ -115,7 +108,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     }
 
     public AlertDialog prescriptionNotFoundAlertBox(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SetUpActivity.this);
         alertDialogBuilder
                 .setMessage("You haven't been prescribed any medication on our system yet. Please check with your prescriber and try again.")
                 .setCancelable(true)
@@ -159,7 +152,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             }else{
                 saveUser(user);
                 Intent doseInputActivity = new Intent(getApplicationContext(), DoseInputActivity.class);
-                doseInputActivity.putExtra("user", user);
+                //doseInputActivity.putExtra("user", user);
                 startActivity(doseInputActivity);
             }
         }

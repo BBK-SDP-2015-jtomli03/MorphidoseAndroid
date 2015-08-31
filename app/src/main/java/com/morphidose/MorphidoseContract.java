@@ -57,5 +57,18 @@ public class MorphidoseContract {
         values.put(PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DOSE, user.getPrescription().getBreakthroughDose());
         return values;
     }
+    // Defines a projection that specifies which columns from the database to read
+    public String[] getPrescriptionProjectionValues(){
+        String[] projection = {
+                PrescriptionEntry.COLUMN_NAME_HOSPITAL_ID,
+                PrescriptionEntry.COLUMN_NAME_PRESCRIBER,
+                PrescriptionEntry.COLUMN_NAME_DATE,
+                PrescriptionEntry.COLUMN_NAME_MRDRUG,
+                PrescriptionEntry.COLUMN_NAME_MRDOSE,
+                PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DRUG,
+                PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DOSE
+        };
+        return projection;
+    }
 
 }
