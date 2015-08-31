@@ -1,13 +1,16 @@
 package com.morphidose;
 
+import java.io.Serializable;
+
 /**
  * Created by Jo on 30/08/2015.
  */
-public class Prescription {
+public class Prescription implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String prescriber;
     private String date;
-    private String MRDrug;
-    private String MRDose;
+    private String mrdrug;
+    private String mrdose;
     private String breakthroughDrug;
     private String breakthroughDose;
 
@@ -29,19 +32,19 @@ public class Prescription {
     }
 
     public String getMRDrug() {
-        return MRDrug;
+        return mrdrug;
     }
 
     public void setMRDrug(String MRDrug) {
-        this.MRDrug = MRDrug;
+        this.mrdrug = MRDrug;
     }
 
     public String getMRDose() {
-        return MRDose;
+        return mrdose;
     }
 
     public void setMRDose(String MRDose) {
-        this.MRDose = MRDose;
+        this.mrdose = MRDose;
     }
 
     public String getBreakthroughDrug() {

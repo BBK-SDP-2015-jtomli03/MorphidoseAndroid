@@ -66,6 +66,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 .setCancelable(false)
                 .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        
                         new RegisterUserTask().execute(hospitalNumber);
                     }
                 })
@@ -81,15 +82,17 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         @Override
         protected User doInBackground(String... params) {
             try {
-                String hospitalNumber = "{\"hospitalNumber\":\"" + params[0] + "\"}";
-                HttpHeaders requestHeaders = new HttpHeaders();
-                requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<String> requestEntity = new HttpEntity<String>(hospitalNumber, requestHeaders);
+                User user = new User(params[0], null);
+                //String hospitalNumber = '{"hospitalNumber":"' + params[0] + '"}';
+                //HttpHeaders requestHeaders = new HttpHeaders();
+                //requestHeaders.setContentType(new MediaType("application", "json"));
+                //HttpEntity<String> requestEntity = new HttpEntity<String>(user, requestHeaders);
                 final String url = "http://192.168.1.69:9000/patient/prescription";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                Prescription prescription = restTemplate.getForObject(url, Prescription.class, requestEntity);
-                return new User(hospitalNumber, prescription);
+                Prescription prescription = restTemplate.postForObject(url, user, Prescription.class);
+                user.setPrescription(prescription);
+                return user;
             } catch (RestClientException e) {
                 Log.e("MainActivity", e.getMessage(), e);
             }
@@ -109,7 +112,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         //handle if no user returned ?null returned -> ie show "user not found" msge and return to input
         //error -> back to first screen with error message
         Intent doseInputActivity = new Intent(getApplicationContext(), DoseInputActivity.class);
-        //doseInputActivity.putExtra("user", user);
+        doseInputActivity.putExtra("user", user);
         startActivity(doseInputActivity);
     }
 }
