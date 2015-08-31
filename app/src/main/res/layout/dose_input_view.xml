@@ -14,5 +14,21 @@
         android:background="@color/green"
         android:padding="@dimen/h1_padding"
         android:layout_marginBottom="@dimen/margin_between_p"/>
+    <TextView
+        android:id="@+id/prescribed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mr_prescribed"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_size"
+        android:layout_marginBottom="@dimen/margin_between_p"/>
+    <TextView
+        android:id="@+id/mrdrug"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mr_dose"
+        android:textColor="@color/black"
+        android:textSize="@dimen/font_size"
+        android:layout_marginBottom="@dimen/margin_between_p"/>
 
 </LinearLayout>

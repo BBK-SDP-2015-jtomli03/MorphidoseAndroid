@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 public class DoseInputActivity extends Activity{
     TextView welcome;
+    TextView mrdrug;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -16,11 +17,9 @@ public class DoseInputActivity extends Activity{
         Intent intent = getIntent();
         User user = (User) intent.getSerializableExtra("user");
         welcome = (TextView) findViewById(R.id.dose_input_view);
-        if(user == null){
-            welcome.setText("@string/hello" + "null" );
+        welcome.setText("Registration Successful!");
+        mrdrug = (TextView) findViewById(R.id.mrdrug);
+        mrdrug.setText(user.getPrescription().getMRDrug());
 
-        }else{
-            welcome.setText("@string/hello" + " " + user.getPrescription().getMRDrug());
-        }
     }
 }
