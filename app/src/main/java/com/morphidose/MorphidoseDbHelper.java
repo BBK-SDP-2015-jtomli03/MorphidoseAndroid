@@ -13,13 +13,16 @@ public class MorphidoseDbHelper extends SQLiteOpenHelper {
     public MorphidoseDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
+
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(MorphidoseContract.SQL_CREATE_PRESCRIPTION_ENTRY);
         db.execSQL(MorphidoseContract.SQL_CREATE_DOSE_ENTRIES);
+        db.execSQL(MorphidoseContract.SQL_CREATE_PRESCRIPTION_ENTRY);
     }
+
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onCreate(db);
     }
+
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }

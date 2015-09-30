@@ -20,7 +20,7 @@ import org.springframework.web.client.RestClientException;
 
 
 public class SetUpActivity extends ActionBarActivity implements View.OnClickListener{
-    MorphidoseDbHelper mDbHelper;
+    private MorphidoseDbHelper mDbHelper;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,24 +123,16 @@ public class SetUpActivity extends ActionBarActivity implements View.OnClickList
     private class RegisterUserTask extends AsyncTask<String, Void, User> {
         @Override
         protected User doInBackground(String... params) {
-            try {
                 User user = new User(params[0], null);
-                //String hospitalNumber = '{"hospitalNumber":"' + params[0] + '"}';
-                //HttpHeaders requestHeaders = new HttpHeaders();
-                //requestHeaders.setContentType(new MediaType("application", "json"));
-                //HttpEntity<String> requestEntity = new HttpEntity<String>(user, requestHeaders);
-                //final String url = "http://192.168.1.69:9000/patient/prescription";
-                Prescription prescription = HttpUtility.getHttpUtility().getRestTemplate().postForObject(HttpUtility.getUrl(), user, Prescription.class);
+//                Prescription prescription = HttpUtility.getHttpUtility().getRestTemplate().postForObject(HttpUtility.getUrl(), user, Prescription.class);
+//                user.setPrescription(prescription);
+//                    return user;
+                Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
+                if(prescription == null){ //no user found
+                    return null;
+                }
                 user.setPrescription(prescription);
                 return user;
-            } catch (RestClientException e) {
-                if(e.getMessage() == "patient.notfound"){
-                    return null;
-                }else{
-                    Log.e("MainActivity", e.getMessage(), e);
-                }
-            }
-            return null;
         }
 
         @Override
@@ -150,10 +142,12 @@ public class SetUpActivity extends ActionBarActivity implements View.OnClickList
             }else if(isPrescriptionEmpty(user.getPrescription())){
                 prescriptionNotFoundAlertBox().show();
             }else{
-                saveUser(user);
+                saveUser(user); //in onPostExecute rather than doInBackground because need to handle above issues here as ptnotfound can't be handled correctly in the catch block.
                 Intent doseInputActivity = new Intent(getApplicationContext(), DoseInputActivity.class);
-                //doseInputActivity.putExtra("user", user);
-                startActivity(doseInputActivity);
+                doseInputActivity.putExtra("user", user);
+                //startActivity(doseInputActivity);
+                setResult(RESULT_OK, doseInputActivity);
+                finish();
             }
         }
     }

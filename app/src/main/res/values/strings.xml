@@ -11,14 +11,9 @@
     <string name="hello">Hello</string>
     <string name="dose_input">Morphidose Dose Input</string>
     <string name="register">Morphidose Register</string>
-    <string name="mr_dose"></string>
-    <string name="mr_prescribed">You are currently prescribed;</string>
-
-
-
-
-
-    <string name="link_text">This is a <a href="http://www.androidforbeginners.com">link</a></string>
-
+    <string name="prescription">Your prescription dated </string>
+    <string name="dose_intro">You are ready to start logging doses of your breakthrough pain relief.</string>
+    <string name="log_dose">Every time you take a dose, simply press the "Submit Dose" button below. You will see a confirmation to verify that the dose has been logged.</string>
+    <string name="dose_taken">Submit Dose</string>
 
 </resources>

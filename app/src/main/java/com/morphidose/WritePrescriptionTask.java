@@ -13,7 +13,6 @@ public class WritePrescriptionTask extends AsyncTask<MorphidoseDbHelper, Void, V
     MorphidoseContract morphidoseContract;
     User user;
     SQLiteDatabase db;
-    Boolean success = false;
 
     public WritePrescriptionTask(User user){
         super();
@@ -22,6 +21,7 @@ public class WritePrescriptionTask extends AsyncTask<MorphidoseDbHelper, Void, V
 
     @Override
     protected Void doInBackground(MorphidoseDbHelper ...params) {
+        Boolean success = false;
         while(!success) {
             db = params[0].getWritableDatabase();
             morphidoseContract = new MorphidoseContract();

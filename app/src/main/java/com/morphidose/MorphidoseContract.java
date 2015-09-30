@@ -3,13 +3,16 @@ package com.morphidose;
 import android.content.ContentValues;
 import android.provider.BaseColumns;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 
 public class MorphidoseContract {
 
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
-    private static final String PRIMARY_KEY = "PRIMARY KEY";
-    public static final String SQL_CREATE_DOSE_ENTRIES =
+    private static final String PRIMARY_KEY = " PRIMARY KEY";
+    public static final  String SQL_CREATE_DOSE_ENTRIES =
             "CREATE TABLE " + DoseEntry.TABLE_NAME + " (" +
                     DoseEntry.COLUMN_NAME_DATE_ID + TEXT_TYPE + PRIMARY_KEY + COMMA_SEP +
                     DoseEntry.COLUMN_NAME_HOSPITAL + TEXT_TYPE + " )";
@@ -67,6 +70,23 @@ public class MorphidoseContract {
                 PrescriptionEntry.COLUMN_NAME_MRDOSE,
                 PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DRUG,
                 PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DOSE
+        };
+        return projection;
+    }
+
+    // Create a new map of values, where column names are the keys
+    public ContentValues createDoseContentValues(String hospitalNumber){
+        Long longDate = new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis();
+        ContentValues values = new ContentValues();
+        values.put(DoseEntry.COLUMN_NAME_DATE_ID, longDate.toString());
+        values.put(DoseEntry.COLUMN_NAME_HOSPITAL, hospitalNumber);
+        return values;
+    }
+
+    public String[] getDoseProjectionValues(){
+        String[] projection = {
+                DoseEntry.COLUMN_NAME_DATE_ID,
+                DoseEntry.COLUMN_NAME_HOSPITAL
         };
         return projection;
     }
