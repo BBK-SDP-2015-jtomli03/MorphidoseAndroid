@@ -5,11 +5,14 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.EOFException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,8 +20,8 @@ import java.util.List;
  */
 public class HttpUtility {
     private static HttpUtility httpUtility = new HttpUtility();
-    private static final String URL_FOR_POST_USER = "http://192.168.1.69:9000/patient/prescription";
-    private static final String URL_FOR_POST_DOSES = "http://192.168.1.69:9000/patient/doses";
+    private static final String URL_FOR_POST_USER = "http://10.240.14.81:9000/patient/prescription";
+    private static final String URL_FOR_POST_DOSES = "http://10.240.14.81:9000/patient/doses";
     private RestTemplate restTemplate;
 
     private HttpUtility(){};
@@ -66,7 +69,21 @@ public class HttpUtility {
             //requestHeaders.setContentType(new MediaType("application", "json"));
             //HttpEntity<String> requestEntity = new HttpEntity<String>(user, requestHeaders);
             //final String url = "http://192.168.1.69:9000/patient/prescription";
-             return HttpUtility.getHttpUtility().getRestTemplate().postForObject(URL_FOR_POST_DOSES, doses, Dose.class);
+
+//            List<String> listToSend = new ArrayList<String>();
+//            String dateInSeconds = "";
+//            //****** NEED TO RESOLVE BELOW CODE AS SAYS ARRAYLIST EMPTY -> below code now tested with toast ****///
+//            listToSend.add(doses.get(0).getHospitalNumber());
+//            for(Dose dose: doses){
+//                dateInSeconds = String.valueOf(dose.getDate().getTime());
+//                listToSend.add(dateInSeconds.substring(0, dateInSeconds.length() - 3));
+//            }
+            //listToSend.add("A059ES21");
+            //listToSend.add("1446291391");
+
+
+            //return HttpUtility.getHttpUtility().getRestTemplate().postForObject(URL_FOR_POST_DOSES, doses, Dose.class);
+            return HttpUtility.getHttpUtility().getRestTemplate().postForObject(URL_FOR_POST_DOSES, doses, Dose.class);
         } catch (RestClientException e) {
             if(e.getMessage() == "patient.notfound"){
                 return null;

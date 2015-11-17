@@ -9,11 +9,14 @@ public class Dose {
     private Timestamp date; //change to String
     private String hospitalNumber;
 
+    public Dose(){
+        //empty constructor to allow for Jackson json conversion
+    }
+
     public Dose(Timestamp date, String hospitalNumber){
         this.date = date;
         this.hospitalNumber = hospitalNumber;
     }
-
 
     public Timestamp getDate() {
         return date;

@@ -12,6 +12,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -70,7 +74,7 @@ public class DoseInputActivity extends Activity{
     private AlertDialog registrationSuccessfulAlertBox(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(DoseInputActivity.this);
         alertDialogBuilder
-                .setMessage("Registration successful! You will can now start logging your \"breakthrough\" doses.")
+                .setMessage("Registration successful! You can now start logging your \"breakthrough\" doses.")
                 .setCancelable(true)
                 .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -153,14 +157,18 @@ public class DoseInputActivity extends Activity{
         private String[] projection;
         private Cursor cursor;
         private String hospitalNumber;
-        private Long longString;
+        private Long date;
         private List<Dose> doses;
+        private Dose mostRecentDose;
+        private Dose latestDoseToRemove;
 
         @Override
         protected Void doInBackground(String... params) {
-            saveDose(user);
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            if (HttpUtility.getHttpUtility().isConnectedToInternet(cm)) {
+            mostRecentDose = new Dose(new Timestamp(new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis()), user.getHospitalNumber());
+            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)) {
+                doses = new ArrayList<Dose>();
+                doses.add(mostRecentDose);
 //                Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
 //                user.setPrescription(prescription);
                 //check db for any other doses to send
@@ -172,28 +180,66 @@ public class DoseInputActivity extends Activity{
                 morphidoseContract = new MorphidoseContract();
                 projection = morphidoseContract.getDoseProjectionValues();
                 cursor = db.query(MorphidoseContract.DoseEntry.TABLE_NAME, projection, null, null, null, null, null);
-                doses = new ArrayList<Dose>();
                 if (cursor != null && cursor.moveToFirst()){
                     do {
-                        longString = cursor.getLong(0); //might change this to String
+                        date = cursor.getLong(0);
                         hospitalNumber = cursor.getString(1);
-                        doses.add(new Dose(new Timestamp(longString), hospitalNumber)); //might change date to String
+                        doses.add(new Dose(new Timestamp(date), hospitalNumber));
                     }while(cursor.moveToNext());
                     cursor.close();
                 }
-                Dose latestDoseToRemove = HttpUtility.getHttpUtility().sendDoses(doses);
+
+//                runOnUiThread(new Runnable()
+//                {
+//
+//                    public void run()
+//                    {
+//                        Toast.makeText(getApplicationContext(), doses.get(doses.size() - 1).getDate().toString(),
+//                                Toast.LENGTH_LONG).show();                    }
+//                });
+
+                latestDoseToRemove = HttpUtility.getHttpUtility().sendDoses(doses);
+
+//                runOnUiThread(new Runnable()
+//                {
+//
+//                    public void run()
+//                    {
+//                        Toast.makeText(getApplicationContext(), latestDoseToRemove,
+//                                Toast.LENGTH_LONG).show();                    }
+//                });
+
+//                runOnUiThread(new Runnable()
+//                {
+//
+//                    public void run()
+//                    {
+//                        Toast.makeText(getApplicationContext(), "in",
+//                                Toast.LENGTH_LONG).show();                    }
+//                });
+            }else{
+                saveDose(mostRecentDose);
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void param) {
+            db.close();
+//                            runOnUiThread(new Runnable()
+//                {
+//
+//                    public void run()
+//                    {
+//                        Toast.makeText(getApplicationContext(), latestDoseToRemove,
+//                                Toast.LENGTH_LONG).show();                    }
+//                });
             doseAcceptedAlertBox().show();
         }
     }
 
-    private void saveDose(User user){
-        new WriteDoseTask(user).execute(mDbHelper);
+    private void saveDose(Dose dose){
+        new WriteDoseTask(dose).execute(mDbHelper);
     }
 
 

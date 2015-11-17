@@ -15,31 +15,31 @@ import org.joda.time.DateTimeZone;
 
 public class WriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, String[]> {
     MorphidoseContract morphidoseContract;
-    User user;
+    Dose dose;
     SQLiteDatabase db;
 
-    public WriteDoseTask(User user){
+    public WriteDoseTask(Dose dose){
         super();
-        this.user = user;
+        this.dose = dose;
     }
 
     @Override
     protected String[] doInBackground(MorphidoseDbHelper ...params) {
         Boolean success = false;
-        //while(!success) {
+        while(!success) {
             db = params[0].getWritableDatabase();
             morphidoseContract = new MorphidoseContract();
 
         //db.execSQL(MorphidoseContract.SQL_CREATE_DOSE_ENTRIES);
 
-            ContentValues values = morphidoseContract.createDoseContentValues(user.getHospitalNumber());
+            ContentValues values = morphidoseContract.createDoseContentValues(dose);
             db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values);
 
-//            if (db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1) {
-//                //successful insert -> continue
-//                success = true;
-//            }
-        //}
+            if (db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1) {
+                //successful insert -> continue
+                success = true;
+            }
+        }
 
 
         return null;

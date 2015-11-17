@@ -75,11 +75,12 @@ public class MorphidoseContract {
     }
 
     // Create a new map of values, where column names are the keys
-    public ContentValues createDoseContentValues(String hospitalNumber){
-        Long longDate = new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis();
+    public ContentValues createDoseContentValues(Dose dose){ //String hospitalNumber
+        //Long longDate = new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis();
         ContentValues values = new ContentValues();
+        Long longDate = dose.getDate().getTime();
         values.put(DoseEntry.COLUMN_NAME_DATE_ID, longDate.toString());
-        values.put(DoseEntry.COLUMN_NAME_HOSPITAL, hospitalNumber);
+        values.put(DoseEntry.COLUMN_NAME_HOSPITAL, dose.getHospitalNumber());
         return values;
     }
 
