@@ -9,12 +9,15 @@ import org.joda.time.DateTimeZone;
 
 public class MorphidoseContract {
 
+    private static final String PLACEHOLDER = "?";
+    private static final String LESS_THAN_OR_EQUAL_TO = "<=";
     private static final String TEXT_TYPE = " TEXT";
+    private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
     private static final String PRIMARY_KEY = " PRIMARY KEY";
     public static final  String SQL_CREATE_DOSE_ENTRIES =
             "CREATE TABLE " + DoseEntry.TABLE_NAME + " (" +
-                    DoseEntry.COLUMN_NAME_DATE_ID + TEXT_TYPE + PRIMARY_KEY + COMMA_SEP +
+                    DoseEntry.COLUMN_NAME_DATE_ID + INTEGER_TYPE + PRIMARY_KEY + COMMA_SEP +
                     DoseEntry.COLUMN_NAME_HOSPITAL + TEXT_TYPE + " )";
     public static final String SQL_CREATE_PRESCRIPTION_ENTRY =
             "CREATE TABLE " + PrescriptionEntry.TABLE_NAME + " (" +
@@ -78,10 +81,14 @@ public class MorphidoseContract {
     public ContentValues createDoseContentValues(Dose dose){ //String hospitalNumber
         //Long longDate = new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis();
         ContentValues values = new ContentValues();
-        Long longDate = dose.getDate().getTime();
-        values.put(DoseEntry.COLUMN_NAME_DATE_ID, longDate.toString());
+        //Long longDate = dose.getDate().getTime();
+        values.put(DoseEntry.COLUMN_NAME_DATE_ID, dose.getDate().getTime());
         values.put(DoseEntry.COLUMN_NAME_HOSPITAL, dose.getHospitalNumber());
         return values;
+    }
+
+    public String getSelectionClauseWhereDoseEntryDateIsLessThanOrEqualToPlaceholder(){
+        return DoseEntry.COLUMN_NAME_DATE_ID + LESS_THAN_OR_EQUAL_TO + PLACEHOLDER;
     }
 
     public String[] getDoseProjectionValues(){

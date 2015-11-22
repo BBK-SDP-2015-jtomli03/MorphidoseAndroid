@@ -17,6 +17,7 @@ import android.widget.Toast;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.net.SocketException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,17 +128,6 @@ public class DoseInputActivity extends Activity{
                 user = new User(hospitalNumber, prescription);
                 cursor.close();
             }
-
-            //db.execSQL(MorphidoseContract.SQL_CREATE_DOSE_ENTRIES);
-
-            //db.execSQL("DROP TABLE IF EXISTS doses");
-
-//            SQLiteDatabase dbm = mDbHelper.getWritableDatabase();
-//            // 2. delete
-//            dbm.delete(MorphidoseContract.PrescriptionEntry.TABLE_NAME, //table name
-//                    MorphidoseContract.PrescriptionEntry.COLUMN_NAME_HOSPITAL_ID + " = ?",  // selections
-//                    new String[] { String.valueOf("A9876") }); //selections args
-
             return null;
         }
 
@@ -152,30 +142,24 @@ public class DoseInputActivity extends Activity{
     }
 
     private class AddDoseTask extends AsyncTask<String, Void, Void> {
+        private ConnectivityManager connectivityManager;
         private MorphidoseContract morphidoseContract;
         private SQLiteDatabase db;
         private String[] projection;
         private Cursor cursor;
         private String hospitalNumber;
         private Long date;
-        private List<Dose> doses;
+        private List<Dose> doses = new ArrayList<Dose>();
         private Dose mostRecentDose;
         private Dose latestDoseToRemove;
 
         @Override
         protected Void doInBackground(String... params) {
             mostRecentDose = new Dose(new Timestamp(new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis()), user.getHospitalNumber());
-            ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)) {
-                doses = new ArrayList<Dose>();
+                //doses = new ArrayList<Dose>();
                 doses.add(mostRecentDose);
-//                Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
-//                user.setPrescription(prescription);
-                //check db for any other doses to send
-                //send doses ->server side check no duplication of doses
-                //recieve date of most recent dose back
-               //remove doses from most recent date backwards
-                //****DONT FORGET DOSES ARE IN LONG -> NEED CONVERTING TO TIMESTAMP!!!!
                 db = mDbHelper.getWritableDatabase();
                 morphidoseContract = new MorphidoseContract();
                 projection = morphidoseContract.getDoseProjectionValues();
@@ -188,52 +172,32 @@ public class DoseInputActivity extends Activity{
                     }while(cursor.moveToNext());
                     cursor.close();
                 }
-
-//                runOnUiThread(new Runnable()
-//                {
-//
-//                    public void run()
-//                    {
-//                        Toast.makeText(getApplicationContext(), doses.get(doses.size() - 1).getDate().toString(),
-//                                Toast.LENGTH_LONG).show();                    }
-//                });
-
-                latestDoseToRemove = HttpUtility.getHttpUtility().sendDoses(doses);
-
-//                runOnUiThread(new Runnable()
-//                {
-//
-//                    public void run()
-//                    {
-//                        Toast.makeText(getApplicationContext(), latestDoseToRemove,
-//                                Toast.LENGTH_LONG).show();                    }
-//                });
-
-//                runOnUiThread(new Runnable()
-//                {
-//
-//                    public void run()
-//                    {
-//                        Toast.makeText(getApplicationContext(), "in",
-//                                Toast.LENGTH_LONG).show();                    }
-//                });
+                db.close();
+                latestDoseToRemove = HttpUtility.getHttpUtility().sendDoses(doses, DoseInputActivity.this);
+                if(latestDoseToRemove == null){
+                    //there has been an error -> try again later ie when wifi connected
+                    saveDose(mostRecentDose);
+                }else{
+                    deleteSentDosesFromDatabase(latestDoseToRemove);
+                }
             }else{
                 saveDose(mostRecentDose);
+                // if wifi connected send doses in the background -> http://stackoverflow.com/questions/17063910/need-to-run-service-while-device-got-wifi-data-connection
+                // need some way of showing if doses aren't sent so pt can push prior to appointment
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void param) {
-            db.close();
-//                            runOnUiThread(new Runnable()
-//                {
-//
-//                    public void run()
-//                    {
-//                        Toast.makeText(getApplicationContext(), latestDoseToRemove,
-//                                Toast.LENGTH_LONG).show();                    }
-//                });
+                            runOnUiThread(new Runnable()
+                {
+
+                    public void run()
+                    {
+                        Toast.makeText(getApplicationContext(), String.valueOf(doses.size()),
+                                Toast.LENGTH_LONG).show();                    }
+                });
             doseAcceptedAlertBox().show();
         }
     }
@@ -242,62 +206,8 @@ public class DoseInputActivity extends Activity{
         new WriteDoseTask(dose).execute(mDbHelper);
     }
 
+    private void deleteSentDosesFromDatabase(Dose dose){
+        new DeleteDoseTask(dose).execute(mDbHelper);
+    }
 
-
-
-//
-//    public class DWriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, String[]> {
-//        MorphidoseContract morphidoseContract;
-//        User user;
-//        SQLiteDatabase db;
-//
-//        public DWriteDoseTask(User user){
-//            super();
-//            this.user = user;
-//        }
-//
-//        @Override
-//        protected String[] doInBackground(MorphidoseDbHelper ...params) {
-//            Boolean success = false;
-//            //while(!success) {
-//            //db = params[0].getWritableDatabase();
-//            //morphidoseContract = new MorphidoseContract();
-//
-//            //db.execSQL(MorphidoseContract.SQL_CREATE_DOSE_ENTRIES);
-//
-////            ContentValues values = morphidoseContract.createDoseContentValues(user.getHospitalNumber());
-////            db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values);
-//
-////            if (db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1) {
-////                //successful insert -> continue
-////                success = true;
-////            }
-//            //}
-//
-//            db = params[0].getReadableDatabase();
-//            Cursor cursor = db.query(MorphidoseContract.DoseEntry.TABLE_NAME, null, null, null, null, null, null);
-//            String[] columns = cursor.getColumnNames();
-//            return columns;
-//            //return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String[] param) {
-//            db.close();
-//            columnsAlertBox(param).show();
-//        }
-//
-//        private AlertDialog columnsAlertBox(String[] param){
-//            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(DoseInputActivity.this);
-//            alertDialogBuilder
-//                    .setMessage(param[0])
-//                    .setCancelable(true)
-//                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int id) {
-//                            dialog.cancel();
-//                        }
-//                    });
-//            return alertDialogBuilder.create();
-//        }
-//    }
 }

@@ -29,19 +29,11 @@ public class WriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, String[]>
         while(!success) {
             db = params[0].getWritableDatabase();
             morphidoseContract = new MorphidoseContract();
-
-        //db.execSQL(MorphidoseContract.SQL_CREATE_DOSE_ENTRIES);
-
             ContentValues values = morphidoseContract.createDoseContentValues(dose);
-            db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values);
-
-            if (db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1) {
-                //successful insert -> continue
+            if(db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1){
                 success = true;
             }
         }
-
-
         return null;
     }
 
