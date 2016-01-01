@@ -2,11 +2,8 @@ package com.morphidose;
 
 import java.sql.Timestamp;
 
-/**
- * Created by Jo on 01/09/2015.
- */
 public class Dose {
-    private Timestamp date; //change to String
+    private Timestamp date;
     private String hospitalNumber;
 
     public Dose(){
@@ -22,15 +19,7 @@ public class Dose {
         return date;
     }
 
-    public void setDate(Timestamp date) {
-        this.date = date;
-    }
-
     public String getHospitalNumber() {
         return hospitalNumber;
-    }
-
-    public void setHospitalNumber(String hospitalNumber) {
-        this.hospitalNumber = hospitalNumber;
     }
 }

@@ -1,17 +1,10 @@
 package com.morphidose;
 
-import android.app.AlertDialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
-import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-
-import java.sql.Timestamp;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
+import android.util.Log;
 
 public class WriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, String[]> {
     MorphidoseContract morphidoseContract;
@@ -30,8 +23,12 @@ public class WriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, String[]>
             db = params[0].getWritableDatabase();
             morphidoseContract = new MorphidoseContract();
             ContentValues values = morphidoseContract.createDoseContentValues(dose);
-            if(db.insert(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1){
-                success = true;
+            try{
+                if(db.insertOrThrow(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1){
+                    success = true;
+                }
+            }catch(SQLiteConstraintException ex){
+                Log.e("SQLiteConstraintException in WriteDoseTask.doInBackground", ex.getMessage(), ex);
             }
         }
         return null;

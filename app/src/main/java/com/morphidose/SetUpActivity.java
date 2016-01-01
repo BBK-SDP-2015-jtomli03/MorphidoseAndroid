@@ -26,7 +26,7 @@ public class SetUpActivity extends ActionBarActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TextView newText = (TextView) findViewById(R.id.frontScreen);
+//        TextView newText = (TextView) findViewById(R.id.frontScreen);
         Button submitHospitalNumber = (Button)findViewById(R.id.ButtonSubmitHospitalNumber);
         submitHospitalNumber.setOnClickListener(this);
         mDbHelper = new MorphidoseDbHelper(getApplicationContext());
@@ -124,9 +124,6 @@ public class SetUpActivity extends ActionBarActivity implements View.OnClickList
         @Override
         protected User doInBackground(String... params) {
                 User user = new User(params[0], null);
-//                Prescription prescription = HttpUtility.getHttpUtility().getRestTemplate().postForObject(HttpUtility.getUrl(), user, Prescription.class);
-//                user.setPrescription(prescription);
-//                    return user;
                 Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
                 if(prescription == null){ //no user found
                     return null;

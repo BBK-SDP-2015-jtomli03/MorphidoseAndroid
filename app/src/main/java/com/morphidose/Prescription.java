@@ -31,10 +31,6 @@ public class Prescription implements Serializable {
         this.date = date;
     }
 
-    public String getMRDrug() {
-        return mrdrug;
-    }
-
     public void setMRDrug(String MRDrug) {
         this.mrdrug = MRDrug;
     }

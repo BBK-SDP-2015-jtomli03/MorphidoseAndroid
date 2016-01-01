@@ -3,10 +3,6 @@ package com.morphidose;
 import android.content.ContentValues;
 import android.provider.BaseColumns;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
-
 public class MorphidoseContract {
 
     private static final String PLACEHOLDER = "?";
@@ -29,7 +25,6 @@ public class MorphidoseContract {
                     PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DRUG + TEXT_TYPE + COMMA_SEP +
                     PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DOSE + TEXT_TYPE + " )";
 
-    // To prevent someone from accidentally instantiating the contract class, give it an empty constructor.
     public MorphidoseContract() {}
 
     /* Inner class that defines the doses table contents */
@@ -78,10 +73,8 @@ public class MorphidoseContract {
     }
 
     // Create a new map of values, where column names are the keys
-    public ContentValues createDoseContentValues(Dose dose){ //String hospitalNumber
-        //Long longDate = new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis();
+    public ContentValues createDoseContentValues(Dose dose){
         ContentValues values = new ContentValues();
-        //Long longDate = dose.getDate().getTime();
         values.put(DoseEntry.COLUMN_NAME_DATE_ID, dose.getDate().getTime());
         values.put(DoseEntry.COLUMN_NAME_HOSPITAL, dose.getHospitalNumber());
         return values;

@@ -1,7 +1,6 @@
 package com.morphidose;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -27,7 +26,6 @@ public class WritePrescriptionTask extends AsyncTask<MorphidoseDbHelper, Void, V
             morphidoseContract = new MorphidoseContract();
             ContentValues values = morphidoseContract.createPrescriptionContentValues(user);
             if (db.insert(MorphidoseContract.PrescriptionEntry.TABLE_NAME, null, values) != -1) {
-                //successful insert -> continue
                 success = true;
             }
         }
