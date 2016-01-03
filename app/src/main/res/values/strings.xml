@@ -3,8 +3,11 @@
 
     <string name="app_name">Morphidose</string>
     <string name="action_settings">Settings</string>
-    <string name="welcome">Welcome to Morphidose. To get you started please ensure you have an internet connection,
-        then enter your hospital number and date of birth below, and press the submit button.</string>
+    <string name="welcome">Welcome to Morphidose</string>
+    <string name="connect_wifi">To get you started please connect to the internet by turning on
+        your wifi or cellular data.</string>
+    <string name="register_instructions">To register with Morphidose, please enter your hospital number below,
+        and press the submit button.</string>
     <string name="confirm_details">Please confirm your details;</string>
     <string name="hospitalNumber">Hospital Number</string>
     <string name="submit">Submit</string>
@@ -13,7 +16,9 @@
     <string name="register">Morphidose Register</string>
     <string name="prescription">Your prescription dated </string>
     <string name="dose_intro">You are ready to start logging doses of your breakthrough pain relief.</string>
-    <string name="log_dose">Every time you take a dose, simply press the "Submit Dose" button below. You will see a confirmation to verify that the dose has been logged.</string>
-    <string name="dose_taken">Submit Dose</string>
-
+    <string name="log_dose">Press the "Submit Breakthrough Dose" button every time you take a dose
+        of your breakthrough medication. You will see a confirmation to verify that the dose has been logged.</string>
+    <string name="dose_taken">Submit Breakthrough Dose</string>
+    <string name="breakthrough_dose">Breakthrough</string>
+    <string name="regular_dose">Regular Dose</string>
 </resources>

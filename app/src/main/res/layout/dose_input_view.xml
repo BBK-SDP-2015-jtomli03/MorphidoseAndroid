@@ -2,45 +2,77 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/dose_input_view"
-        android:layout_width="fill_parent"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="75dp">
+    <Button
+        android:id="@+id/breakthrough_dose"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
+        android:layout_width="0dp"
+        android:layout_weight="5"
+        android:text="@string/breakthrough_dose"
+        android:onClick="addDose"
         android:textColor="@color/white"
-        android:textSize="@dimen/morphidose_title_size"
-        android:background="@color/green"
-        android:padding="@dimen/h1_padding"
-        android:layout_marginBottom="@dimen/margin_between_p"/>
+        android:textSize="@dimen/button_size"
+        android:background="@color/button"
+        android:padding="10dp"
+        android:layout_margin="10dp">
+    </Button>
+
+    <Button
+        android:id="@+id/regular_dose"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="5"
+        android:text="@string/regular_dose"
+        android:onClick="addDose"
+        android:textColor="@color/white"
+        android:textSize="@dimen/button_size"
+        android:background="@color/button"
+        android:padding="10dp"
+        android:layout_margin="10dp">
+    </Button>
+</LinearLayout>
+
     <TextView
-        android:id="@+id/hospitalNumber"
+        android:id="@+id/centre_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
+        android:layout_weight="70"
+        android:gravity="center"
+        android:textColor="@color/white"
         android:textSize="@dimen/font_size"
         android:text="@string/dose_intro"
         android:layout_margin="@dimen/margin_between_p"/>
-    <TextView
-        android:id="@+id/logDose"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="@dimen/font_size"
-        android:text="@string/log_dose"
-        android:layout_margin="@dimen/margin_between_p"/>
+
+
     <Button
         android:id="@+id/update_prescription"
         android:layout_height="wrap_content"
+        android:layout_width="match_parent"
         android:text="@string/dose_taken"
         android:onClick="addDose"
         android:textColor="@color/white"
-        android:textSize="@dimen/morphidose_title_size"
-        android:background="@color/green"
-        android:layout_width="fill_parent"
+        android:textSize="@dimen/font_size"
+        android:background = "@drawable/submit_button_background"
+        android:drawableLeft="@drawable/ic_done_white_36dp"
+        android:padding="10dp"
+        android:layout_margin="10dp"/>
+
+    <TextView
+        android:id="@+id/bottom_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="30"
+        android:textColor="@color/black"
+        android:textSize="@dimen/button_size"
+        android:text="@string/log_dose"
+        android:background="@color/white"
         android:padding="@dimen/button_padding"
-        android:layout_margin="@dimen/button_margin">
-    </Button>
+        android:layout_marginTop="10dp"/>
 
 </LinearLayout>

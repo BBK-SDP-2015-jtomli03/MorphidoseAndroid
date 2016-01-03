@@ -20,10 +20,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SetUpActivity"
-            android:label="@string/register" >
+            android:name=".SetUpActivity">
             <intent-filter>
                 <action android:name="com.morphidose.SETUP_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/register" >
+            <intent-filter>
+                <action android:name="com.morphidose.REGISTER_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

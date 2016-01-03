@@ -31,7 +31,6 @@ public class DoseInputActivity extends Activity{
     private IntentFilter filter;
     private User user;
     private Dose mostRecentDose;
-    // Whether the display should be refreshed.
     private boolean refreshDisplay = true;
     private boolean userInputDose;
     private boolean created = false;
@@ -49,7 +48,7 @@ public class DoseInputActivity extends Activity{
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         receiver = new NetworkReceiver();
         filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(receiver, filter); // Registers BroadcastReceiver to track network connection changes.
+        registerReceiver(receiver, filter);
         setContentView(R.layout.dose_input_view);
         created = true;
     }
@@ -174,7 +173,10 @@ public class DoseInputActivity extends Activity{
         @Override
         protected void onPostExecute(Void param) {
             db.close();
-            if(user == null){
+            if(user == null && HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+                Intent registerActivity = new Intent(getApplicationContext(), RegisterActivity.class);
+                startActivityForResult(registerActivity, SET_UP_REQUEST);
+            }else if(user == null){
                 Intent setUpActivity = new Intent(getApplicationContext(), SetUpActivity.class);
                 startActivityForResult(setUpActivity, SET_UP_REQUEST);
             }

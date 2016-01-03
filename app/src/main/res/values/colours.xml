@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#000000</color>
+    <color name="button">#4DFFFFFF</color>
+    <!--<color name="light_blue">#4d4dff</color>#3333cc-->
+    <color name="dark_blue">#0000cc</color>
+    <color name="mid_blue">#3366ff</color>
+    <color name="light_blue">#80b2ff</color>
+    <color name="submit_button_end">#66a2ff</color>
+    <color name="submit_button_mid">#0040ff</color>
     <color name="green">#669900</color>
     <color name="magenta">#CC00CC</color>
     <color name="red">#FF0000</color>
