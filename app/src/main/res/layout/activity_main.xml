@@ -24,6 +24,7 @@
     android:id="@+id/frontScreen1"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    android:gravity="center_horizontal"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -33,14 +34,33 @@
     android:textSize="@dimen/font_size"
     android:layout_marginBottom="@dimen/margin_between_p"/>
 
-<Button
-    android:id="@+id/GoToRegisterUserView"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent"
-    android:text="@string/submit"
-    android:textSize="@dimen/button_size"
-    android:textColor="@color/white"
-    android:background = "@drawable/round_button"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/continue_button"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:gravity="center_horizontal">
+        <Button
+            android:id="@+id/GoToRegisterUserView"
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:background = "@drawable/ic_forward_white_48dp"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/continue_message_layout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:gravity="center_horizontal">
+        <TextView
+            android:id="@+id/continue_message"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/white"
+            android:text="@string/continue_registration"
+            android:textSize="@dimen/button_size"
+            android:layout_marginTop="5dp"/>
+
+    </LinearLayout>
 
 </LinearLayout>
 

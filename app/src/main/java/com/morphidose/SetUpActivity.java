@@ -11,7 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-
+import android.widget.TextView;
 
 
 public class SetUpActivity extends ActionBarActivity implements View.OnClickListener{
@@ -21,6 +21,7 @@ public class SetUpActivity extends ActionBarActivity implements View.OnClickList
     private boolean created = false;
     SetUpActivity self = this;
     Button goToRegisterUserView;
+    TextView continueMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,8 @@ public class SetUpActivity extends ActionBarActivity implements View.OnClickList
         registerReceiver(receiver, filter);
         goToRegisterUserView = (Button)findViewById(R.id.GoToRegisterUserView);
         goToRegisterUserView.setVisibility(View.INVISIBLE);
+        continueMessage = (TextView)findViewById(R.id.continue_message);
+        continueMessage.setVisibility(View.INVISIBLE);
         created = true;
     }
 
@@ -75,6 +78,7 @@ public class SetUpActivity extends ActionBarActivity implements View.OnClickList
                 if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)) {
                     goToRegisterUserView.setOnClickListener(self);
                     goToRegisterUserView.setVisibility(View.VISIBLE);
+                    continueMessage.setVisibility(View.VISIBLE);
                 }
             }
         }
