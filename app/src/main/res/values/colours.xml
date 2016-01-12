@@ -13,7 +13,7 @@
     <!--<color name="submit_button_mid">#669900</color>-->
     <!--<color name="submit_button_end">#ddff99</color>-->
     <color name="submit_button">#0000FF</color>
-    <color name="submit_button_start">#d9d9d9</color>
+    <color name="submit_button_start">#f2f2f2</color>
     <color name="submit_button_mid">#FFFFFF</color>
     <color name="submit_button_end">#FFFFFF</color>
     <color name="green">#669900</color>

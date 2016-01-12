@@ -11,9 +11,11 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -49,7 +51,7 @@ public class DoseInputActivity extends Activity{
     private TextView centreMessageTitle;
     private TextView bottomMessage;
     private Button breakthrough_dose;
-
+    private Button regular_dose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -64,6 +66,8 @@ public class DoseInputActivity extends Activity{
         centreMessageTitle = (TextView)findViewById(R.id.centre_message_title);
         centreMessage = (TextView)findViewById(R.id.centre_message);
         bottomMessage = (TextView)findViewById(R.id.bottom_message);
+        breakthrough_dose = (Button)findViewById(R.id.breakthrough_dose);
+        regular_dose = (Button)findViewById(R.id.regular_dose);
         loadPage();
         created = true;
     }
@@ -98,6 +102,8 @@ public class DoseInputActivity extends Activity{
     }
 
     public void showRegularDose(View view){
+        breakthrough_dose.setBackgroundResource(R.drawable.button_opaque);
+        regular_dose.setBackgroundResource(R.drawable.button_opaque_selected);
         Prescription prescription = user.getPrescription();
         String regularDrug = prescription.getMRDrug();
         centreMessageTitle.setText(regularDrug);
@@ -106,6 +112,8 @@ public class DoseInputActivity extends Activity{
     }
 
     public void showBreakthroughDose(View view){
+        regular_dose.setBackgroundResource(R.drawable.button_opaque);
+        breakthrough_dose.setBackgroundResource(R.drawable.button_opaque_selected);
         Prescription prescription = user.getPrescription();
         String breakthroughDrug = prescription.getBreakthroughDrug();
         String breakthroughDose = prescription.getBreakthroughDose();

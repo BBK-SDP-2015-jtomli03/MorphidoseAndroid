@@ -18,7 +18,7 @@
     <string name="dose_intro">You are ready to start logging doses of your breakthrough pain relief.</string>
     <string name="log_dose">Press the "Submit Breakthrough Dose" button every time you take a dose
         of your breakthrough medication. You will see a confirmation to verify that the dose has been logged.</string>
-    <string name="dose_taken">SUBMIT BREAKTHROUGH DOSE</string>
+    <string name="dose_taken">Submit Breakthrough Dose</string>
     <string name="breakthrough_dose">Breakthrough</string>
     <string name="regular_dose">Regular Dose</string>
     <string name="continue_registration">Continue</string>
