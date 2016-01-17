@@ -10,16 +10,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,24 +32,22 @@ import java.util.List;
 public class DoseInputActivity extends Activity{
     static final int SET_UP_REQUEST = 0;
     private MorphidoseDbHelper mDbHelper;
+    private ConnectivityManager connectivityManager;
     private NetworkReceiver receiver;
-    private IntentFilter filter;
-    private ProgressDialog pd;
     private Context context;
+    private ProgressDialog pd;
     private User user;
     private Dose mostRecentDose;
-    private boolean refreshDisplay = true;
-    private boolean userInputDose;
+    private boolean userInputDose = false;
     private boolean created = false;
-    private TextView hospitalNumber;
-    private TextView mrdrug;
-    private ConnectivityManager connectivityManager;
     private boolean dosesInDatabase = true;
     private TextView centreMessage;
     private TextView centreMessageTitle;
+    private TextView centre_message_bottom;
     private TextView bottomMessage;
     private Button breakthrough_dose;
     private Button regular_dose;
+    private boolean refreshDisplay = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -60,11 +56,11 @@ public class DoseInputActivity extends Activity{
         mDbHelper = new MorphidoseDbHelper(getApplicationContext());
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         receiver = new NetworkReceiver();
-        filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(receiver, filter);
+        registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         setContentView(R.layout.dose_input_view);
         centreMessageTitle = (TextView)findViewById(R.id.centre_message_title);
         centreMessage = (TextView)findViewById(R.id.centre_message);
+        centre_message_bottom = (TextView)findViewById(R.id.centre_message_bottom);
         bottomMessage = (TextView)findViewById(R.id.bottom_message);
         breakthrough_dose = (Button)findViewById(R.id.breakthrough_dose);
         regular_dose = (Button)findViewById(R.id.regular_dose);
@@ -84,58 +80,14 @@ public class DoseInputActivity extends Activity{
     }
 
     public void loadPage(){
-        new ReadPrescriptionTask().execute();
-        new ReadDosesTask().execute();
-    }
-
-    public void addDose(View view){
-        userInputDose = true;
-        mostRecentDose = new Dose(new Timestamp(new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis()), user.getHospitalNumber());
-        if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)) {
-            new AddDoseTask().execute();
-        }else{
-            bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_black_48px, 0, 0, 0);
-            bottomMessage.setText((getString(R.string.doses_to_send)));
-            saveDose(mostRecentDose);
-            doseAcceptedAlertBox().show();
+        if(user==null){
+            new ReadPrescriptionTask().execute();
         }
-    }
-
-    public void showRegularDose(View view){
-        breakthrough_dose.setBackgroundResource(R.drawable.button_opaque);
-        regular_dose.setBackgroundResource(R.drawable.button_opaque_selected);
-        Prescription prescription = user.getPrescription();
-        String regularDrug = prescription.getMRDrug();
-        centreMessageTitle.setText(regularDrug);
-        centreMessage.setText("Take ONE tablet TWICE a day");
-        //http://stackoverflow.com/questions/6930604/android-add-textview-to-layout-when-button-is-pressed
-    }
-
-    public void showBreakthroughDose(View view){
-        regular_dose.setBackgroundResource(R.drawable.button_opaque);
-        breakthrough_dose.setBackgroundResource(R.drawable.button_opaque_selected);
-        Prescription prescription = user.getPrescription();
-        String breakthroughDrug = prescription.getBreakthroughDrug();
-        String breakthroughDose = prescription.getBreakthroughDose();
-        if(breakthroughDrug.contains("Oramorph")){
-            breakthroughDrug = breakthroughDrug + " Solution";
-            breakthroughDose = getOramorphDose(breakthroughDose);
-        }else{
-            breakthroughDose = "Take ONE tablet when required for breakthrough pain";
-        }
-        centreMessageTitle.setText(breakthroughDrug);
-        centreMessage.setText(breakthroughDose);
-    }
-
-    public String getOramorphDose(String breakthroughDose){
-        double doseInMg = Double.parseDouble(breakthroughDose.substring(0,breakthroughDose.length() - 2));
-        return "Take ONE " + doseInMg/2 + "ml dose when required for breakthrough pain";
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == SET_UP_REQUEST) {
             if (resultCode == RESULT_OK) {
-//                registrationSuccessfulAlertBox().show();
                 user = (User) intent.getSerializableExtra("user");
             }
             else if (resultCode == RESULT_CANCELED) {
@@ -144,45 +96,141 @@ public class DoseInputActivity extends Activity{
         }
     }
 
-    private AlertDialog doseAcceptedAlertBox(){
+    private AlertDialog errorAlertBox(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(DoseInputActivity.this);
         alertDialogBuilder
-                .setMessage("Dose submitted successfully!")
-                .setCancelable(false)
-                .setPositiveButton("Close the App", new DialogInterface.OnClickListener() {
+                .setMessage(R.string.error_registering)
+                .setCancelable(true)
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        finish();
-                    }
-                })
-                .setNegativeButton("Keep App Open", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
+                        new ReadPrescriptionTask().execute();
                     }
                 });
         return alertDialogBuilder.create();
     }
 
-//    private AlertDialog registrationSuccessfulAlertBox(){
-//        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(DoseInputActivity.this);
-//        alertDialogBuilder
-//                .setMessage("Registration successful! You can now start logging your \"breakthrough\" doses.")
-//                .setCancelable(true)
-//                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        new ReadPrescriptionTask().execute();
-//                    }
-//                });
-//        return alertDialogBuilder.create();
-//    }
+    public void showRegularDose(View view){
+        if(!HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+            cannotVerifyDose().show();
+        }
+        breakthrough_dose.setBackgroundResource(R.drawable.button_opaque);
+        regular_dose.setBackgroundResource(R.drawable.button_opaque_selected);
+        Prescription prescription = user.getPrescription();
+        String regularDrug = prescription.getMRDrug();
+        String regularDose = prescription.getMRDose();
+        String formulation = getFormulation(regularDrug);
+        String date = prescription.getDate();
+        centreMessageTitle.setText(regularDrug + " " + regularDose);
+        centreMessage.setText("Take ONE " + formulation + " TWICE a day");
+        centre_message_bottom.setText("(Prescribed on: " + date + ")");
+    }
 
-    private AlertDialog errorAlertBox(){
+    public String getFormulation(String regularDrug){
+        if(regularDrug.contains("Tablet")){
+            return "tablet";
+        }else if(regularDrug.contains("Capsule")){
+            return "capsule";
+        }
+        return null;
+    }
+
+    public void showBreakthroughDose(View view){
+        if(!HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+            cannotVerifyDose().show();
+        }
+        regular_dose.setBackgroundResource(R.drawable.button_opaque);
+        breakthrough_dose.setBackgroundResource(R.drawable.button_opaque_selected);
+        Prescription prescription = user.getPrescription();
+        String breakthroughDrug = prescription.getBreakthroughDrug();
+        String breakthroughDose = prescription.getBreakthroughDose();
+        String date = prescription.getDate();
+        if(breakthroughDrug.contains("Oramorph")){
+            breakthroughDrug = breakthroughDrug + " Solution";
+            breakthroughDose = getOramorphDose(breakthroughDose);
+        }else{
+            breakthroughDose = "Take ONE tablet when required for breakthrough pain";
+        }
+        centreMessageTitle.setText(breakthroughDrug);
+        centreMessage.setText(breakthroughDose);
+        centre_message_bottom.setText("(Prescribed on: " + date + ")");
+    }
+
+    public String getOramorphDose(String breakthroughDose){
+        double doseInMg = Double.parseDouble(breakthroughDose.substring(0,breakthroughDose.length() - 2));
+        return "Take ONE " + doseInMg/2 + "ml dose when required for breakthrough pain";
+    }
+
+    public void addDose(View view){
+        userInputDose = true;
+        mostRecentDose = new Dose(new Timestamp(new DateTime().withZone(DateTimeZone.forID("Europe/London")).getMillis()), user.getHospitalNumber());
+        sendDoseAlertBox();
+    }
+
+    private void sendDoseAlertBox(){
+        final AlertDialog dialog = new AlertDialog.Builder(DoseInputActivity.this)
+                .setTitle(R.string.dose_submitted)
+                .setMessage(R.string.send_dose)
+                .setNegativeButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int id) {
+                        sendDose(dialogInterface);
+                    }
+                })
+                .setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int id) {
+                        dialogInterface.cancel();
+                    }
+                }).create();
+        setSendDoseAlertBoxButtons(dialog);
+        dialog.show();
+    }
+
+    private void sendDose(DialogInterface dialogInterface){
+        if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)) {
+            dialogInterface.cancel();
+            new AddDoseTask().execute();
+        } else {
+            bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_black_48px, 0, 0, 0);
+            bottomMessage.setText((getString(R.string.doses_to_send)));
+            saveDose(mostRecentDose);
+            dialogInterface.cancel();
+            doseAcceptedToast();
+        }
+    }
+
+    private void setSendDoseAlertBoxButtons(final AlertDialog dialog){
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                positiveButton.setPadding(5, 10, 5, 10);
+                Drawable positive = DoseInputActivity.this.getResources().getDrawable(R.drawable.cross);
+                positive.setBounds((int) (positive.getIntrinsicWidth() * 0.5), 0, (int) (positive.getIntrinsicWidth() * 1.5), positive.getIntrinsicHeight());
+                positiveButton.setCompoundDrawables(positive, null, null, null);
+                Drawable negative = DoseInputActivity.this.getResources().getDrawable(R.drawable.tick_circle);
+                negative.setBounds((int) (negative.getIntrinsicWidth() * 0.5), 0, (int) (negative.getIntrinsicWidth() * 1.5), negative.getIntrinsicHeight());
+                negativeButton.setCompoundDrawables(negative, null, null, null);
+                negativeButton.setPadding(5, 10, 5, 10);
+            }
+        });
+    }
+
+    private void doseAcceptedToast(){
+        Toast toast = Toast.makeText(context, R.string.dose_submitted_success, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
+
+    private AlertDialog cannotVerifyDose(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(DoseInputActivity.this);
         alertDialogBuilder
-                .setMessage("Sorry - there was an error while processing your data - let us try again.")
+                .setIcon(R.drawable.wifi)
+                .setTitle(R.string.cannot_verify_dose_title)
+                .setMessage(R.string.cannot_verify_dose)
                 .setCancelable(true)
                 .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        new ReadPrescriptionTask().execute();
+                        dialog.cancel();
                     }
                 });
         return alertDialogBuilder.create();
@@ -226,66 +274,69 @@ public class DoseInputActivity extends Activity{
             }else if(user == null){
                 Intent setUpActivity = new Intent(getApplicationContext(), SetUpActivity.class);
                 startActivityForResult(setUpActivity, SET_UP_REQUEST);
+            }else if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+                new AddDoseTask().execute();
             }
         }
     }
 
-    private class ReadDosesTask extends AsyncTask<String, Void, Void> {
-        private MorphidoseContract morphidoseContract;
-        private SQLiteDatabase db;
-        private String[] projection;
-        private Cursor cursor;
-        private String hospitalNumber;
-        private Long date;
-        private List<Dose> doses;
-        private Dose latestDoseToRemove;
+//    private class ReadDosesTask extends AsyncTask<String, Void, Void> {
+////        private MorphidoseContract morphidoseContract;
+////        private SQLiteDatabase db;
+////        private String[] projection;
+////        private Cursor cursor;
+////        private String hospitalNumber;
+////        private Long date;
+////        private List<Dose> doses;
+////        private Dose latestDoseToRemove;
+//
+//        @Override
+//        protected Void doInBackground(String... params) {
+////            doses = new ArrayList<Dose>();
+//            if(dosesInDatabase){
+//                addSavedDosesToDosesToSend();
+//            }
+////            if(doses.size() > 0){ // on loading the app it will run this task to check if any doses need sending from the DB, if not doses.size = 0.
+////                latestDoseToRemove = HttpUtility.getHttpUtility().sendDoses(doses);
+////                if(latestDoseToRemove != null){
+////                    deleteSentDosesFromDatabase(latestDoseToRemove);
+////                }else{
+////                    dosesInDatabase = true;
+////                }
+////            }else{
+////                dosesInDatabase = false;
+////            }
+//            return null;
+//        }
+//
+////        @Override
+////        protected void onPostExecute(Void param) {
+////            if(!dosesInDatabase) {
+////                bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check_circle, 0, 0, 0);
+////                bottomMessage.setText(getString(R.string.all_doses_sent));
+////            }else{
+////                bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_black_48px, 0, 0, 0);
+////                bottomMessage.setText(getString(R.string.doses_to_send));
+////            }
+////        }
+//
+////        private void addSavedDosesToDosesToSend(){
+////            db = mDbHelper.getWritableDatabase();
+////            morphidoseContract = new MorphidoseContract();
+////            projection = morphidoseContract.getDoseProjectionValues();
+////            cursor = db.query(MorphidoseContract.DoseEntry.TABLE_NAME, projection, null, null, null, null, null);
+////            if (cursor != null && cursor.moveToFirst()){
+////                do {
+////                    date = cursor.getLong(0);
+////                    hospitalNumber = cursor.getString(1);
+////                    doses.add(new Dose(new Timestamp(date), hospitalNumber));
+////                }while(cursor.moveToNext());
+////                cursor.close();
+////            }
+////            db.close();
+////        }
+//    }
 
-        @Override
-        protected Void doInBackground(String... params) {
-            doses = new ArrayList<Dose>();
-            if(dosesInDatabase){
-                addSavedDosesToDosesToSend();
-            }
-            if(doses.size() > 0){ // on loading the app it will run this task to check if any doses need sending from the DB, if not doses.size = 0.
-                latestDoseToRemove = HttpUtility.getHttpUtility().sendDoses(doses);
-                if(latestDoseToRemove != null){
-                    deleteSentDosesFromDatabase(latestDoseToRemove);
-                }else{
-                    dosesInDatabase = true;
-                }
-            }else{
-                dosesInDatabase = false;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void param) {
-            if(!dosesInDatabase) {
-                bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check_circle, 0, 0, 0);
-                bottomMessage.setText(getString(R.string.all_doses_sent));
-            }else{
-                bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_black_48px, 0, 0, 0);
-                bottomMessage.setText(getString(R.string.doses_to_send));
-            }
-        }
-
-        private void addSavedDosesToDosesToSend(){
-            db = mDbHelper.getWritableDatabase();
-            morphidoseContract = new MorphidoseContract();
-            projection = morphidoseContract.getDoseProjectionValues();
-            cursor = db.query(MorphidoseContract.DoseEntry.TABLE_NAME, projection, null, null, null, null, null);
-            if (cursor != null && cursor.moveToFirst()){
-                do {
-                    date = cursor.getLong(0);
-                    hospitalNumber = cursor.getString(1);
-                    doses.add(new Dose(new Timestamp(date), hospitalNumber));
-                }while(cursor.moveToNext());
-                cursor.close();
-            }
-            db.close();
-        }
-    }
 
     private class AddDoseTask extends AsyncTask<String, Void, Void> {
         private MorphidoseContract morphidoseContract;
@@ -296,17 +347,18 @@ public class DoseInputActivity extends Activity{
         private Long date;
         private List<Dose> doses;
         private Dose latestDoseToRemove;
-        long timeStarted;
+        private long timeStarted;
 
         @Override
         protected void onPreExecute() {
-            timeStarted = System.currentTimeMillis();
-            pd = new ProgressDialog(context);
-            pd.setTitle("Submitting dose...");
-            pd.setMessage("Please wait.");
-            pd.setCancelable(false);
-            pd.setIndeterminate(true);
-            pd.show();
+            if(userInputDose){
+                timeStarted = System.currentTimeMillis();
+                pd = new ProgressDialog(context);
+                pd.setTitle(R.string.sending_dose);
+                pd.setCancelable(false);
+                pd.setIndeterminate(true);
+                pd.show();
+            }
         }
 
         @Override
@@ -325,7 +377,6 @@ public class DoseInputActivity extends Activity{
                 }else if(userInputDose && HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
                     new AddDoseTask().execute(); //there has been an error -> try again
                 }else if(userInputDose){
-                    // need some way of showing if doses aren't sent so pt can push prior to appointment
                     saveDose(mostRecentDose); //there has been an error -> try again later when connected to the internet.
                 }else if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
                     new AddDoseTask().execute(); //clause added because when on reconnection to internet the first addDoseTask doesn't send the doses
@@ -344,7 +395,7 @@ public class DoseInputActivity extends Activity{
 //                                }
 //                            });
 
-            if (pd!=null) {
+            if (pd!=null && userInputDose) {
                 while(System.currentTimeMillis() < timeStarted + 2000){
                     try {
                         Thread.sleep(100);
@@ -355,7 +406,7 @@ public class DoseInputActivity extends Activity{
                 pd.dismiss();
             }
             if(userInputDose){
-                doseAcceptedAlertBox().show();
+                doseAcceptedToast();
             }
             if(!dosesInDatabase) {
                 bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check_circle, 0, 0, 0);

@@ -23,8 +23,4 @@ public class User implements Serializable{
     public void setPrescription(Prescription prescription) {
         this.prescription = prescription;
     }
-
-    public void setHospitalNumber(String hospitalNumber) {
-        this.hospitalNumber = hospitalNumber;
-    }
 }

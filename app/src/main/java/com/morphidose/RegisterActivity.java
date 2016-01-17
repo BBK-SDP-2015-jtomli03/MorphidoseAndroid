@@ -1,5 +1,6 @@
 package com.morphidose;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,7 +9,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-public class RegisterActivity extends ActionBarActivity implements View.OnClickListener {
+public class RegisterActivity extends Activity implements View.OnClickListener {
     private MorphidoseDbHelper mDbHelper;
     private ProgressDialog pd;
     private Context context;
@@ -26,7 +27,6 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         context = this;
         setContentView(R.layout.register);
-//        TextView newText = (TextView) findViewById(R.id.frontScreen);
         Button submitHospitalNumber = (Button)findViewById(R.id.ButtonSubmitHospitalNumber);
         submitHospitalNumber.setOnClickListener(this);
         mDbHelper = new MorphidoseDbHelper(getApplicationContext());
@@ -34,16 +34,12 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
@@ -63,25 +59,25 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
     public void onClick(View view){
         final EditText hospitalNumberField = (EditText) findViewById(R.id.EditTextHospitalNumber);
         String hospitalNumber = hospitalNumberField.getText().toString();
-        createAlertBox(hospitalNumber).show();
+        submitHospitalNumberAlert(hospitalNumber).show();
     }
 
-    public AlertDialog createAlertBox(final String hospitalNumber){
+    public AlertDialog submitHospitalNumberAlert(final String hospitalNumber){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegisterActivity.this);
         alertDialogBuilder
                 .setMessage("Submit the hospital number " + hospitalNumber + "?")
                 .setCancelable(false)
-                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                        if (HttpUtility.getHttpUtility().isConnectedToInternet(cm)) {
+                        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                        if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)) {
                             new RegisterUserTask().execute(hospitalNumber);
                         } else {
                             noWIFIAlertBox().show();
                         }
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -92,9 +88,9 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
     public AlertDialog noWIFIAlertBox(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegisterActivity.this);
         alertDialogBuilder
-                .setMessage("You currently have no internet connection. Please ensure you have a connection before trying again.")
+                .setMessage(R.string.no_wifi)
                 .setCancelable(true)
-                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -105,9 +101,9 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
     public AlertDialog userNotFoundAlertBox(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegisterActivity.this);
         alertDialogBuilder
-                .setMessage("Sorry - we couldn't find that hospital number in the Morphidose system. Please check the number and try again.")
+                .setMessage(R.string.user_not_found)
                 .setCancelable(true)
-                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -118,9 +114,9 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
     public AlertDialog prescriptionNotFoundAlertBox(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegisterActivity.this);
         alertDialogBuilder
-                .setMessage("You haven't been prescribed any medication on our system yet. Please check with your prescriber and try again.")
+                .setMessage(R.string.no_prescription)
                 .setCancelable(true)
-                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
@@ -129,10 +125,13 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
     }
 
     private class RegisterUserTask extends AsyncTask<String, Void, User> {
+        long timeStarted;
+
         @Override
         protected void onPreExecute() {
+            timeStarted = System.currentTimeMillis();
             pd = new ProgressDialog(context);
-            pd.setTitle("Registering...");
+            pd.setTitle(R.string.registering);
             pd.setMessage("Please wait.");
             pd.setCancelable(false);
             pd.setIndeterminate(true);
@@ -143,7 +142,7 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
         protected User doInBackground(String... params) {
             User user = new User(params[0], null);
             Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
-            if(prescription == null){ //no user found
+            if(prescription == null){ //user with this hospital number does not exist in server database
                 return null;
             }
             user.setPrescription(prescription);
@@ -153,6 +152,13 @@ public class RegisterActivity extends ActionBarActivity implements View.OnClickL
         @Override
         protected void onPostExecute(User user) {
             if (pd!=null) {
+                while(System.currentTimeMillis() < timeStarted + 2000){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+                        Log.e("ResgisterActivity.RegisterUserTask", "InterruptedException in onPostExecute", ex);
+                    }
+                }
                 pd.dismiss();
             }
             if(user == null){

@@ -52,7 +52,7 @@ public class MorphidoseContract {
         values.put(PrescriptionEntry.COLUMN_NAME_HOSPITAL_ID, user.getHospitalNumber());
         values.put(PrescriptionEntry.COLUMN_NAME_PRESCRIBER, user.getPrescription().getPrescriber());
         values.put(PrescriptionEntry.COLUMN_NAME_DATE, user.getPrescription().getDate());
-        values.put(PrescriptionEntry.COLUMN_NAME_MRDRUG, user.getPrescription().getMRDose());
+        values.put(PrescriptionEntry.COLUMN_NAME_MRDRUG, user.getPrescription().getMRDrug());
         values.put(PrescriptionEntry.COLUMN_NAME_MRDOSE, user.getPrescription().getMRDose());
         values.put(PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DRUG, user.getPrescription().getBreakthroughDrug());
         values.put(PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DOSE, user.getPrescription().getBreakthroughDose());

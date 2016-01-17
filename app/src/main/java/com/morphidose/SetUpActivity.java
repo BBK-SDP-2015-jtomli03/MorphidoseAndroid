@@ -1,5 +1,6 @@
 package com.morphidose;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +15,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-public class SetUpActivity extends ActionBarActivity implements View.OnClickListener{
+public class SetUpActivity extends Activity implements View.OnClickListener{
     static final int SET_UP_REQUEST = 0;
     private ConnectivityManager connectivityManager;
     NetworkReceiver receiver;
@@ -40,7 +41,6 @@ public class SetUpActivity extends ActionBarActivity implements View.OnClickList
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }

@@ -54,7 +54,9 @@
         android:textColor="@color/white"
         android:textSize="@dimen/morphidose_title_size"
         android:text="@string/registration_successful"
-        android:layout_margin="10dp"/>
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"/>
     <TextView
         android:id="@+id/centre_message"
         android:layout_height="wrap_content"
@@ -63,41 +65,44 @@
         android:textColor="@color/white"
         android:textSize="@dimen/font_size"
         android:text="@string/dose_intro"
-        android:layout_margin="10dp"/>
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"/>
+    <TextView
+        android:id="@+id/centre_message_bottom"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/button_size"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"/>
 
     </LinearLayout>
 
-    <!--<Button-->
-        <!--android:id="@+id/update_prescription"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:text="@string/dose_taken"-->
-        <!--android:onClick="addDose"-->
-        <!--android:textColor="#0000b3"-->
-        <!--android:textSize="25sp"-->
-        <!--android:textStyle="bold"-->
-        <!--android:background = "@drawable/submit_button_background"-->
-        <!--android:drawableRight="@drawable/ic_touch_app"-->
-        <!--android:paddingRight="5dp"-->
-        <!--android:paddingLeft="10dp"-->
-        <!--android:paddingTop="15dp"-->
-        <!--android:paddingBottom="15dp"-->
-        <!--android:layout_marginTop="20dp"-->
-        <!--android:layout_marginRight="20dp"-->
-        <!--android:layout_marginBottom="30dp"-->
-        <!--android:layout_marginLeft="20dp"/>-->
-
-    <Button
+    <ImageButton
         android:id="@+id/update_prescription"
-        android:layout_height="58dp"
+        android:layout_height="70dp"
         android:layout_width="70dp"
         android:onClick="addDose"
         android:background = "@drawable/circle"
-        android:drawableTop="@drawable/ic_touch_app"
+        android:src="@drawable/submit_button"
+        android:contentDescription="@string/submit_dose"
         android:layout_marginTop="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginBottom="30dp"
         android:layout_marginLeft="20dp"/>
+
+    <TextView
+        android:id="@+id/submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="@dimen/button_size"
+        android:text="@string/dose_taken"
+        android:layout_marginBottom="10dp"/>
 
 
     <TextView
