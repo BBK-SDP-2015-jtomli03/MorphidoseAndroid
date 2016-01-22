@@ -30,8 +30,6 @@ public class SetUpActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.activity_main);
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         receiver = new NetworkReceiver();
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(receiver, filter);
         goToRegisterUserView = (Button)findViewById(R.id.GoToRegisterUserView);
         goToRegisterUserView.setVisibility(View.INVISIBLE);
         continueMessage = (TextView)findViewById(R.id.continue_message);
@@ -39,23 +37,23 @@ public class SetUpActivity extends Activity implements View.OnClickListener{
         created = true;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     public void onClick(View view){
@@ -64,11 +62,22 @@ public class SetUpActivity extends Activity implements View.OnClickListener{
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onPause(){
+        super.onPause();
         if (receiver != null) {
             this.unregisterReceiver(receiver);
         }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     public class NetworkReceiver extends BroadcastReceiver {

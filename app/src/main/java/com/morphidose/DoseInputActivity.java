@@ -47,7 +47,6 @@ public class DoseInputActivity extends Activity{
     private TextView bottomMessage;
     private Button breakthrough_dose;
     private Button regular_dose;
-    private boolean refreshDisplay = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -56,7 +55,6 @@ public class DoseInputActivity extends Activity{
         mDbHelper = new MorphidoseDbHelper(getApplicationContext());
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         receiver = new NetworkReceiver();
-        registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         setContentView(R.layout.dose_input_view);
         centreMessageTitle = (TextView)findViewById(R.id.centre_message_title);
         centreMessage = (TextView)findViewById(R.id.centre_message);
@@ -70,13 +68,29 @@ public class DoseInputActivity extends Activity{
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
         if (pd!=null) {
             pd.dismiss();
         }
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
         if (receiver != null) {
             this.unregisterReceiver(receiver);
         }
-        super.onDestroy();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     public void loadPage(){
@@ -451,9 +465,6 @@ public class DoseInputActivity extends Activity{
                 if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager) && dosesInDatabase) {
                     userInputDose = false;
                     new AddDoseTask().execute();
-                    refreshDisplay = true;
-                } else {
-                    refreshDisplay = false;
                 }
             }
         }

@@ -5,6 +5,7 @@
     <dimen name="button_size">20sp</dimen>
     <dimen name="morphidose_title_size">30sp</dimen>
     <dimen name="font_size">25sp</dimen>
+    <dimen name="edit_text">20dp</dimen>
     <dimen name="h1_padding">6dp</dimen>
     <dimen name="margin_between_p">20dp</dimen>
     <dimen name="button_margin">20dp</dimen>
