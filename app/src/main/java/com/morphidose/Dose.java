@@ -1,8 +1,10 @@
 package com.morphidose;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Dose {
+public class Dose implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Timestamp date;
     private String hospitalNumber;
 

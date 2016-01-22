@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -24,23 +25,28 @@ import android.widget.Toast;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class DoseInputActivity extends Activity{
+public class DoseInputActivity extends Activity implements Serializable{
+    private static final long serialVersionUID = 1L;
     static final int SET_UP_REQUEST = 0;
+    public static final String USER = "user";
     private MorphidoseDbHelper mDbHelper;
     private ConnectivityManager connectivityManager;
     private NetworkReceiver receiver;
+    IntentFilter dosesSentIntentFilter;
     private Context context;
     private ProgressDialog pd;
     private User user;
     private Dose mostRecentDose;
     private boolean userInputDose = false;
-    private boolean created = false;
+//    private boolean created = false;
     private boolean dosesInDatabase = true;
+    private boolean recieverRegistered = false;
     private TextView centreMessage;
     private TextView centreMessageTitle;
     private TextView centre_message_bottom;
@@ -54,7 +60,9 @@ public class DoseInputActivity extends Activity{
         context = this;
         mDbHelper = new MorphidoseDbHelper(getApplicationContext());
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        receiver = new NetworkReceiver();
+        receiver = new NetworkReceiver(this, connectivityManager);
+        registerNetworkReceiver();
+        loadPage();
         setContentView(R.layout.dose_input_view);
         centreMessageTitle = (TextView)findViewById(R.id.centre_message_title);
         centreMessage = (TextView)findViewById(R.id.centre_message);
@@ -62,19 +70,21 @@ public class DoseInputActivity extends Activity{
         bottomMessage = (TextView)findViewById(R.id.bottom_message);
         breakthrough_dose = (Button)findViewById(R.id.breakthrough_dose);
         regular_dose = (Button)findViewById(R.id.regular_dose);
-        loadPage();
-        created = true;
+        //created = true;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if(recieverRegistered) {
+            unregisterNetworkReceiver();
+        }
     }
 
     @Override
     public void onStop(){
         super.onStop();
-        if (pd!=null) {
+        if(pd!=null) {
             pd.dismiss();
         }
     }
@@ -82,15 +92,17 @@ public class DoseInputActivity extends Activity{
     @Override
     public void onPause(){
         super.onPause();
-        if (receiver != null) {
-            this.unregisterReceiver(receiver);
+        if(!dosesInDatabase && recieverRegistered) {
+            unregisterNetworkReceiver();
         }
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        if(!recieverRegistered) {
+            registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        }
     }
 
     public void loadPage(){
@@ -99,15 +111,32 @@ public class DoseInputActivity extends Activity{
         }
     }
 
+    public void registerNetworkReceiver(){
+        dosesSentIntentFilter = new IntentFilter(NetworkReceiver.BROADCAST_MESSAGE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, dosesSentIntentFilter);
+        recieverRegistered = true;
+    }
+
+    public void unregisterNetworkReceiver(){
+        this.unregisterReceiver(receiver);
+        recieverRegistered = false;
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == SET_UP_REQUEST) {
+        if(requestCode == SET_UP_REQUEST) {
             if (resultCode == RESULT_OK) {
                 user = (User) intent.getSerializableExtra("user");
+                saveUser(user);
             }
             else if (resultCode == RESULT_CANCELED) {
                 errorAlertBox().show();
             }
         }
+    }
+
+    private void saveUser(User user){
+        new WritePrescriptionTask(user).execute(mDbHelper);
     }
 
     private AlertDialog errorAlertBox(){
@@ -200,15 +229,18 @@ public class DoseInputActivity extends Activity{
 
     private void sendDose(DialogInterface dialogInterface){
         if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)) {
-            dialogInterface.cancel();
-            new AddDoseTask().execute();
+            callSendDosesIntentService(true);
+            //dialogInterface.cancel();
+            //new AddDoseTask().execute();
         } else {
-            bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_black_48px, 0, 0, 0);
-            bottomMessage.setText((getString(R.string.doses_to_send)));
+//            bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_black_48px, 0, 0, 0);
+//            bottomMessage.setText((getString(R.string.doses_to_send)));
+            setBottomMessage(true);
             saveDose(mostRecentDose);
-            dialogInterface.cancel();
-            doseAcceptedToast();
+            //dialogInterface.cancel();
         }
+        dialogInterface.cancel();
+        doseAcceptedToast();
     }
 
     private void setSendDoseAlertBoxButtons(final AlertDialog dialog){
@@ -288,9 +320,10 @@ public class DoseInputActivity extends Activity{
             }else if(user == null){
                 Intent setUpActivity = new Intent(getApplicationContext(), SetUpActivity.class);
                 startActivityForResult(setUpActivity, SET_UP_REQUEST);
-            }else if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
-                new AddDoseTask().execute();
             }
+//            else if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+//                new AddDoseTask().execute();
+//            }
         }
     }
 
@@ -395,6 +428,8 @@ public class DoseInputActivity extends Activity{
                 }else if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
                     new AddDoseTask().execute(); //clause added because when on reconnection to internet the first addDoseTask doesn't send the doses
                 }
+            }else{
+                dosesInDatabase = false;
             }
             return null;
         }
@@ -458,16 +493,65 @@ public class DoseInputActivity extends Activity{
         dosesInDatabase = false;
     }
 
-    public class NetworkReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(created){
-                if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager) && dosesInDatabase) {
-                    userInputDose = false;
-                    new AddDoseTask().execute();
-                }
-            }
+    public void callSendDosesIntentService(boolean userInputDose){
+        Intent sendDosesIntent = new Intent(context, SendDosesIntentService.class);
+        sendDosesIntent.putExtra(SendDosesIntentService.USER_INPUT_DOSE, userInputDose);
+        sendDosesIntent.putExtra(SendDosesIntentService.MOST_RECENT_DOSE, mostRecentDose);
+        sendDosesIntent.putExtra(SendDosesIntentService.DOSES_IN_DATABASE, dosesInDatabase);
+        context.startService(sendDosesIntent);
+    }
+
+    public void setBottomMessage(boolean dosesInDatabase){
+        if(!dosesInDatabase){
+            bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check_circle, 0, 0, 0);
+            bottomMessage.setText((getString(R.string.all_doses_sent)));
+        }else{
+            bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_black_48px, 0, 0, 0);
+            bottomMessage.setText((getString(R.string.doses_to_send)));
         }
     }
+
+    public boolean dosesInDatabase(){
+        return dosesInDatabase;
+    }
+
+    public void setDosesInDatabase(boolean dosesInDatabase){
+        this.dosesInDatabase = dosesInDatabase;
+        setBottomMessage(dosesInDatabase);
+    }
+
+    public void setUserInputDose(boolean userInputDose){
+        this.userInputDose = userInputDose;
+    }
+
+    public Dose getMostRecentDose(){
+        return mostRecentDose;
+    }
+
+//    public class NetworkReceiver extends BroadcastReceiver {
+//        DoseInputActivity doseInputActivity;
+//
+//        public NetworkReceiver(DoseInputActivity doseInputActivity){
+//            super();
+//            this.doseInputActivity = doseInputActivity;
+//        }
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+////            if(created){
+//                if (HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager) && doseInputActivity.dosesInDatabase()) {
+//                    userInputDose = false;
+//                    new AddDoseTask().execute();
+//
+//
+//                    Intent sendDosesIntent = new Intent(context, SendDosesIntentService.class);
+//                    sendDosesIntent.putExtra(SendDosesIntentService.USER_INPUT_DOSE, userInputDose);
+//                    sendDosesIntent.putExtra(SendDosesIntentService.MOST_RECENT_DOSE, mostRecentDose);
+//                    sendDosesIntent.putExtra(SendDosesIntentService.DOSES_IN_DATABASE, dosesInDatabase);
+//                    startService(sendDosesIntent);
+//                }
+//            //}
+//        }
+//    }
 
 }

@@ -166,9 +166,9 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
             }else if(isPrescriptionEmpty(user.getPrescription())){
                 prescriptionNotFoundAlertBox().show();
             }else{
-                saveUser(user); //in onPostExecute rather than doInBackground because need to handle above issues here as ptnotfound can't be handled correctly in the catch block.
+                //saveUser(user); //in onPostExecute rather than doInBackground because need to handle above issues here as ptnotfound can't be handled correctly in the catch block.
                 Intent doseInputActivity = new Intent(getApplicationContext(), DoseInputActivity.class);
-                doseInputActivity.putExtra("user", user);
+                doseInputActivity.putExtra(DoseInputActivity.USER, user);
                 setResult(RESULT_OK, doseInputActivity);
                 finish();
             }
@@ -179,7 +179,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
         return prescription.getPrescriber().equals("");
     }
 
-    private void saveUser(User user){
-        new WritePrescriptionTask(user).execute(mDbHelper);
-    }
+//    private void saveUser(User user){
+//        new WritePrescriptionTask(user).execute(mDbHelper);
+//    }
 }
