@@ -35,7 +35,9 @@ public class SetUpActivity extends Activity implements View.OnClickListener{
     @Override
     public void onClick(View view){
         Intent registerActivity = new Intent(getApplicationContext(), RegisterActivity.class);
-        startActivityForResult(registerActivity, SET_UP_REQUEST);
+//        startActivityForResult(registerActivity, SET_UP_REQUEST);
+        startActivity(registerActivity);
+        finish();
     }
 
     @Override

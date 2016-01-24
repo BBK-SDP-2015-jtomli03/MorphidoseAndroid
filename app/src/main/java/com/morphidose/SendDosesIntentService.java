@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SendDosesIntentService extends IntentService {
+    public static final String BROADCAST_MESSAGE = "com.morphidose.BROADCAST_MESSAGE";
     public static final String USER_INPUT_DOSE = "userInputDose";
     public static final String MOST_RECENT_DOSE = "mostRecentDose";
     public static final String DOSES_IN_DATABASE = "dosesInDatabase";
@@ -43,11 +44,12 @@ public class SendDosesIntentService extends IntentService {
         mDbHelper = new MorphidoseDbHelper(getApplicationContext());
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         sendDoses();
-        Intent broadcastIntent = new Intent(NetworkReceiver.BROADCAST_MESSAGE);
+        Intent broadcastIntent = new Intent(BROADCAST_MESSAGE);
         //broadcastIntent.setAction(DosesSentResponseReceiver.ACTION_RESP);
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+        //broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.putExtra(RESULT, dosesInDatabase);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+        //sendBroadcast(broadcastIntent);
     }
 
     private void sendDoses(){
@@ -67,9 +69,9 @@ public class SendDosesIntentService extends IntentService {
             }else if(userInputDose){
                 saveDose(mostRecentDose); //there has been an error -> try again later when connected to the internet.
             }
-//            else if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
-//                new AddDoseTask().execute(); //clause added because when on reconnection to internet the first addDoseTask doesn't send the doses
-//            }
+            else if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+                sendDoses(); //clause added because when on reconnection to internet the first call to sendDoses doesn't send the doses
+            }
         }else{
             dosesInDatabase = false;
         }

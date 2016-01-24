@@ -32,21 +32,6 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
         mDbHelper = new MorphidoseDbHelper(getApplicationContext());
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
-
     @Override
     protected void onDestroy() {
         if (pd!=null) {
@@ -166,10 +151,11 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
             }else if(isPrescriptionEmpty(user.getPrescription())){
                 prescriptionNotFoundAlertBox().show();
             }else{
-                //saveUser(user); //in onPostExecute rather than doInBackground because need to handle above issues here as ptnotfound can't be handled correctly in the catch block.
+                saveUser(user); //in onPostExecute rather than doInBackground because need to handle above issues here as ptnotfound can't be handled correctly in the catch block.
                 Intent doseInputActivity = new Intent(getApplicationContext(), DoseInputActivity.class);
                 doseInputActivity.putExtra(DoseInputActivity.USER, user);
                 setResult(RESULT_OK, doseInputActivity);
+                startActivity(doseInputActivity);
                 finish();
             }
         }
@@ -179,7 +165,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
         return prescription.getPrescriber().equals("");
     }
 
-//    private void saveUser(User user){
-//        new WritePrescriptionTask(user).execute(mDbHelper);
-//    }
+    private void saveUser(User user){
+        new WritePrescriptionTask(user).execute(mDbHelper);
+    }
 }

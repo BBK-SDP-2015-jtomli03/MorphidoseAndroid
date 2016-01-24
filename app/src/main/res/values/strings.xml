@@ -22,7 +22,7 @@
     <string name="dose_input">Morphidose Dose Input</string>
     <string name="register">Morphidose Register</string>
     <string name="dose_intro">You are ready to start logging doses of your breakthrough pain relief.</string>
-    <string name="log_dose">Press the "Submit Breakthrough Dose" button every time you take a dose
+    <string name="log_dose">Press the \"Submit Breakthrough Dose\" button every time you take a dose
         of your breakthrough medication. You will see a confirmation to verify that the dose has been logged.</string>
     <string name="dose_taken">Submit Breakthrough Dose</string>
     <string name="sending_dose">Sending dose...</string>
