@@ -10,8 +10,6 @@ import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -151,11 +149,10 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
             }else if(isPrescriptionEmpty(user.getPrescription())){
                 prescriptionNotFoundAlertBox().show();
             }else{
-                saveUser(user); //in onPostExecute rather than doInBackground because need to handle above issues here as ptnotfound can't be handled correctly in the catch block.
-                Intent doseInputActivity = new Intent(getApplicationContext(), DoseInputActivity.class);
+                saveUser(user);
+                Intent doseInputActivity = new Intent(context, DoseInputActivity.class);
                 doseInputActivity.putExtra(DoseInputActivity.USER, user);
                 setResult(RESULT_OK, doseInputActivity);
-                startActivity(doseInputActivity);
                 finish();
             }
         }

@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 
 public class SetUpActivity extends Activity implements View.OnClickListener{
-    static final int SET_UP_REQUEST = 0;
     private ConnectivityManager connectivityManager;
     NetworkReceiver receiver;
     SetUpActivity self = this;
@@ -35,7 +34,6 @@ public class SetUpActivity extends Activity implements View.OnClickListener{
     @Override
     public void onClick(View view){
         Intent registerActivity = new Intent(getApplicationContext(), RegisterActivity.class);
-//        startActivityForResult(registerActivity, SET_UP_REQUEST);
         startActivity(registerActivity);
         finish();
     }

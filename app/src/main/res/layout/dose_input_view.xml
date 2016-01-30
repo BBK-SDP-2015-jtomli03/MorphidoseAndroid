@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dose_input_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_gradient"
@@ -53,7 +54,6 @@
         android:gravity="center"
         android:textColor="@color/white"
         android:textSize="@dimen/morphidose_title_size"
-        android:text="@string/registration_successful"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"/>
@@ -64,7 +64,6 @@
         android:gravity="center"
         android:textColor="@color/white"
         android:textSize="@dimen/font_size"
-        android:text="@string/dose_intro"
         android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"/>
@@ -114,7 +113,6 @@
         android:background="@color/white"
         android:textColor="@color/black"
         android:textSize="@dimen/button_size"
-        android:text="@string/log_dose"
         android:padding="@dimen/button_padding"/>
 
 </LinearLayout>

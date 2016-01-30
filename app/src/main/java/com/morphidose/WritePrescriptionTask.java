@@ -3,9 +3,6 @@ package com.morphidose;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.util.Log;
-
-import org.springframework.web.client.RestClientException;
 
 
 public class WritePrescriptionTask extends AsyncTask<MorphidoseDbHelper, Void, Void> {

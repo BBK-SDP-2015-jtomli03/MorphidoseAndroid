@@ -45,11 +45,8 @@ public class SendDosesIntentService extends IntentService {
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         sendDoses();
         Intent broadcastIntent = new Intent(BROADCAST_MESSAGE);
-        //broadcastIntent.setAction(DosesSentResponseReceiver.ACTION_RESP);
-        //broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
         broadcastIntent.putExtra(RESULT, dosesInDatabase);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-        //sendBroadcast(broadcastIntent);
     }
 
     private void sendDoses(){
