@@ -18,18 +18,11 @@ public class SendDosesIntentService extends IntentService {
     public static final String MOST_RECENT_DOSE = "mostRecentDose";
     public static final String DOSES_IN_DATABASE = "dosesInDatabase";
     public static final String RESULT = "result";
-    private MorphidoseContract morphidoseContract;
     private MorphidoseDbHelper mDbHelper;
     private ConnectivityManager connectivityManager;
-    private SQLiteDatabase db;
-    private String[] projection;
-    private Cursor cursor;
-    private String hospitalNumber;
-    private Long date;
     private List<Dose> doses;
-    private Dose latestDoseToRemove;
-    private boolean userInputDose;
     private Dose mostRecentDose;
+    private boolean userInputDose;
     private boolean dosesInDatabase;
 
     public SendDosesIntentService() {
@@ -58,7 +51,7 @@ public class SendDosesIntentService extends IntentService {
             addSavedDosesToDosesToSend();
         }
         if(doses.size() > 0){ // on loading the app it will run this task to check if any doses need sending from the DB, if not doses.size = 0.
-            latestDoseToRemove = HttpUtility.getHttpUtility().sendDoses(doses);
+            Dose latestDoseToRemove = HttpUtility.getHttpUtility().sendDoses(doses);
             if(latestDoseToRemove != null){
                 deleteSentDosesFromDatabase(latestDoseToRemove);
             }else if(userInputDose && HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
@@ -75,14 +68,14 @@ public class SendDosesIntentService extends IntentService {
     }
 
     private void addSavedDosesToDosesToSend(){
-        db = mDbHelper.getWritableDatabase();
-        morphidoseContract = new MorphidoseContract();
-        projection = morphidoseContract.getDoseProjectionValues();
-        cursor = db.query(MorphidoseContract.DoseEntry.TABLE_NAME, projection, null, null, null, null, null);
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        MorphidoseContract morphidoseContract = new MorphidoseContract();
+        String[] projection = morphidoseContract.getDoseProjectionValues();
+        Cursor cursor = db.query(MorphidoseContract.DoseEntry.TABLE_NAME, projection, null, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()){
             do {
-                date = cursor.getLong(0);
-                hospitalNumber = cursor.getString(1);
+                Long date = cursor.getLong(0);
+                String hospitalNumber = cursor.getString(1);
                 doses.add(new Dose(new Timestamp(date), hospitalNumber));
             }while(cursor.moveToNext());
             cursor.close();

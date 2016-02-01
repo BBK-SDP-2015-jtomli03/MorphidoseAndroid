@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-
 public class RegisterActivity extends Activity implements View.OnClickListener {
     private MorphidoseDbHelper mDbHelper;
     private ProgressDialog pd;

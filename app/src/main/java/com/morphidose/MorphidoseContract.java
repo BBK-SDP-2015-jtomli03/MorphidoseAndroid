@@ -11,30 +11,30 @@ public class MorphidoseContract {
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
     private static final String PRIMARY_KEY = " PRIMARY KEY";
-    public static final  String SQL_CREATE_DOSE_ENTRIES =
-            "CREATE TABLE " + DoseEntry.TABLE_NAME + " (" +
-                    DoseEntry.COLUMN_NAME_DATE_ID + INTEGER_TYPE + PRIMARY_KEY + COMMA_SEP +
-                    DoseEntry.COLUMN_NAME_HOSPITAL + TEXT_TYPE + " )";
+    public static final String SQL_CREATE_DOSE_ENTRIES =
+                               "CREATE TABLE " + DoseEntry.TABLE_NAME + " (" +
+                               DoseEntry.COLUMN_NAME_DATE_ID + INTEGER_TYPE + PRIMARY_KEY + COMMA_SEP +
+                               DoseEntry.COLUMN_NAME_HOSPITAL + TEXT_TYPE + " )";
     public static final String SQL_CREATE_PRESCRIPTION_ENTRY =
-            "CREATE TABLE " + PrescriptionEntry.TABLE_NAME + " (" +
-                    PrescriptionEntry.COLUMN_NAME_HOSPITAL_ID + TEXT_TYPE + PRIMARY_KEY + COMMA_SEP +
-                    PrescriptionEntry.COLUMN_NAME_PRESCRIBER + TEXT_TYPE + COMMA_SEP +
-                    PrescriptionEntry.COLUMN_NAME_DATE + TEXT_TYPE + COMMA_SEP +
-                    PrescriptionEntry.COLUMN_NAME_MRDRUG + TEXT_TYPE + COMMA_SEP +
-                    PrescriptionEntry.COLUMN_NAME_MRDOSE + TEXT_TYPE + COMMA_SEP +
-                    PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DRUG + TEXT_TYPE + COMMA_SEP +
-                    PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DOSE + TEXT_TYPE + " )";
+                               "CREATE TABLE " + PrescriptionEntry.TABLE_NAME + " (" +
+                               PrescriptionEntry.COLUMN_NAME_HOSPITAL_ID + TEXT_TYPE + PRIMARY_KEY + COMMA_SEP +
+                               PrescriptionEntry.COLUMN_NAME_PRESCRIBER + TEXT_TYPE + COMMA_SEP +
+                               PrescriptionEntry.COLUMN_NAME_DATE + TEXT_TYPE + COMMA_SEP +
+                               PrescriptionEntry.COLUMN_NAME_MRDRUG + TEXT_TYPE + COMMA_SEP +
+                               PrescriptionEntry.COLUMN_NAME_MRDOSE + TEXT_TYPE + COMMA_SEP +
+                               PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DRUG + TEXT_TYPE + COMMA_SEP +
+                               PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DOSE + TEXT_TYPE + " )";
 
     public MorphidoseContract() {}
 
-    /* Inner class that defines the doses table contents */
+    /* Defines the doses table contents */
     public static abstract class DoseEntry implements BaseColumns {
         public static final String TABLE_NAME = "doses";
         public static final String COLUMN_NAME_DATE_ID = "date";
         public static final String COLUMN_NAME_HOSPITAL = "hospitalnumber";
     }
 
-    /* Inner class that defines the prescription table contents */
+    /* Defines the prescription table contents */
     public static abstract class PrescriptionEntry implements BaseColumns {
         public static final String TABLE_NAME = "prescription";
         public static final String COLUMN_NAME_HOSPITAL_ID = "hospitalnumber";
@@ -46,7 +46,7 @@ public class MorphidoseContract {
         public static final String COLUMN_NAME_BREAKTHROUGH_DOSE = "breakthroughDose";
     }
 
-    // Create a new map of values, where column names are the keys
+    // Creates a new map of values for the prescription table, where column names are the keys
     public ContentValues createPrescriptionContentValues(User user){
         ContentValues values = new ContentValues();
         values.put(PrescriptionEntry.COLUMN_NAME_HOSPITAL_ID, user.getHospitalNumber());
@@ -58,7 +58,7 @@ public class MorphidoseContract {
         values.put(PrescriptionEntry.COLUMN_NAME_BREAKTHROUGH_DOSE, user.getPrescription().getBreakthroughDose());
         return values;
     }
-    // Defines a projection that specifies which columns from the database to read
+    // Defines a projection that specifies which columns from the prescription table to read
     public String[] getPrescriptionProjectionValues(){
         String[] projection = {
                 PrescriptionEntry.COLUMN_NAME_HOSPITAL_ID,
@@ -72,7 +72,7 @@ public class MorphidoseContract {
         return projection;
     }
 
-    // Create a new map of values, where column names are the keys
+    // Creates a new map of values for the doses table, where column names are the keys
     public ContentValues createDoseContentValues(Dose dose){
         ContentValues values = new ContentValues();
         values.put(DoseEntry.COLUMN_NAME_DATE_ID, dose.getDate().getTime());
@@ -84,6 +84,7 @@ public class MorphidoseContract {
         return DoseEntry.COLUMN_NAME_DATE_ID + LESS_THAN_OR_EQUAL_TO + PLACEHOLDER;
     }
 
+    // Defines a projection that specifies which columns from the doses table to read
     public String[] getDoseProjectionValues(){
         String[] projection = {
                 DoseEntry.COLUMN_NAME_DATE_ID,

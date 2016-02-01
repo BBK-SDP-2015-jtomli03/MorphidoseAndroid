@@ -18,7 +18,7 @@ public class HttpUtility {
     private static final String URL_FOR_POST_DOSES = BASE_URL + "doses";
     private RestTemplate restTemplate;
 
-    private HttpUtility(){};
+    private HttpUtility(){}
 
     public static HttpUtility getHttpUtility(){
         return httpUtility;

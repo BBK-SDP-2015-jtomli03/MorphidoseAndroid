@@ -2,9 +2,6 @@ package com.morphidose;
 
 import java.io.Serializable;
 
-/**
- * Created by Jo on 30/08/2015.
- */
 public class Prescription implements Serializable {
     private static final long serialVersionUID = 1L;
     private String prescriber;
