@@ -41,8 +41,10 @@
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="dose_submitted_success">Dose submitted successfully!</string>
-    <string name="cannot_verify_dose">You are not connected to the internet so we couldn\'t verify your latest dose.
-        If you have recently had a dose change then the displayed dose might not be up to date.</string>
-    <string name="cannot_verify_dose_title">Your Latest Dose Cannot be Verified</string>
+    <string name="cannot_verify_dose">You are not connected to the internet so we couldn\'t verify your latest doses.
+        If you have recently had a dose change then the displayed doses may not be up to date.</string>
+    <string name="cannot_verify_dose_title">Your Latest Doses Cannot be Verified</string>
+    <string name="log_doses">Please log your breakthrough doses</string>
+    <string name="getting_doses">We are just getting your latest doses.</string>
 
 </resources>

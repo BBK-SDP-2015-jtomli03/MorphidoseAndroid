@@ -2,6 +2,7 @@ package com.morphidose;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,6 +36,7 @@ public class DoseInputActivity extends Activity implements Serializable{
     private static final String REGULAR = "regular";
     public static final int SET_UP_REQUEST = 2;
     public static final String USER = "user";
+    private static final String LOG_DOSES_MESSAGE = "logDosesMessage";
     private MorphidoseDbHelper mDbHelper;
     private ConnectivityManager connectivityManager;
     private NetworkReceiver receiver;
@@ -45,7 +47,11 @@ public class DoseInputActivity extends Activity implements Serializable{
     private boolean registered = false;
     private boolean dosesInDatabase = false;
     private boolean recieverRegistered = false;
+    private boolean latestPrescriptionReceived = false;
     private boolean regularDose = false;
+    private boolean logDosesMessageDisplayed = true;
+    private boolean created;
+    private boolean userInput = true;
     private TextView centreMessage;
     private TextView centreMessageTitle;
     private TextView centre_message_bottom;
@@ -53,7 +59,6 @@ public class DoseInputActivity extends Activity implements Serializable{
     private Button breakthrough_dose;
     private Button regular_dose;
     private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -64,6 +69,8 @@ public class DoseInputActivity extends Activity implements Serializable{
         receiver = new NetworkReceiver();
         sendDosesIntent = new Intent(this, SendDosesIntentService.class);
         sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        created = true;
+        Log.e("!!!!! in onCreate", " !!!!!!!!");
     }
 
     @Override
@@ -77,11 +84,22 @@ public class DoseInputActivity extends Activity implements Serializable{
     @Override
     public void onStop(){
         super.onStop();
+        latestPrescriptionReceived = false;
+        created = false;
+        Log.e("!!!!! in onStop", " !!!!!!!!");
     }
 
     @Override
     public void onStart(){
+        Log.e("!!!!! in onStart", " !!!!!!!!");
         super.onStart();
+        if(user == null){
+            new ReadPrescriptionTask().execute();
+        }else if(!latestPrescriptionReceived && HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+            new GetLatestPrescriptionTask().execute(false);
+        }else{
+            loadPage();
+        }
     }
 
     @Override
@@ -91,9 +109,11 @@ public class DoseInputActivity extends Activity implements Serializable{
             unregisterNetworkReceiver();
         }
         if(registered){
-            editor = sharedPreferences.edit();
+            Log.e("!!!!! in onPause -> registered", " !!!!!!!!");
+            SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(DOSES_IN_DATABASE, dosesInDatabase);
             editor.putBoolean(REGULAR, regularDose);
+            editor.putBoolean(LOG_DOSES_MESSAGE, logDosesMessageDisplayed);
             editor.commit();
         }
     }
@@ -101,15 +121,17 @@ public class DoseInputActivity extends Activity implements Serializable{
     @Override
     public void onResume(){
         super.onResume();
+        Log.e("!!!!! in onResume", " !!!!!!!!");
         if(!recieverRegistered) {
             registerNetworkReceiver();
         }
-        if(user == null){
-            new ReadPrescriptionTask().execute();
-        }
+//        if(user == null){
+//            new ReadPrescriptionTask().execute();
+//        }
     }
 
     public void loadPage(){
+        Log.e("!!!!! in loadPage", " !!!!!!!!");
         setContentView(R.layout.dose_input_view);
         centreMessageTitle = (TextView)findViewById(R.id.centre_message_title);
         centreMessage = (TextView)findViewById(R.id.centre_message);
@@ -120,10 +142,16 @@ public class DoseInputActivity extends Activity implements Serializable{
         if(registered) {
             dosesInDatabase = sharedPreferences.getBoolean(DOSES_IN_DATABASE, false);
             regularDose = sharedPreferences.getBoolean(REGULAR, false);
+            logDosesMessageDisplayed = sharedPreferences.getBoolean(LOG_DOSES_MESSAGE, true);
             setBottomMessage(dosesInDatabase);
-            if(regularDose){
+            if(logDosesMessageDisplayed || !created){
+                centreMessage.setText(R.string.log_doses);
+            }
+            else if(regularDose){
+                userInput = false;
                 showRegularDose(regular_dose);
             }else{
+                userInput = false;
                 showBreakthroughDose(breakthrough_dose);
             }
         }else{
@@ -150,6 +178,7 @@ public class DoseInputActivity extends Activity implements Serializable{
             user = (User) intent.getSerializableExtra(USER);
             loadPage();
             registered = true;
+            latestPrescriptionReceived = true;
         }
         else if (resultCode == RESULT_CANCELED) {
             errorAlertBox().show();
@@ -171,9 +200,8 @@ public class DoseInputActivity extends Activity implements Serializable{
 
     public void showRegularDose(View view){
         regularDose = true;
-        if(!HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
-            cannotVerifyDose().show();
-        }
+        logDosesMessageDisplayed = false;
+        checkForLatestPrescription();
         breakthrough_dose.setBackgroundResource(R.drawable.button_opaque);
         regular_dose.setBackgroundResource(R.drawable.button_opaque_selected);
         Prescription prescription = user.getPrescription();
@@ -186,6 +214,20 @@ public class DoseInputActivity extends Activity implements Serializable{
         centre_message_bottom.setText("(Prescribed on: " + date + ")");
     }
 
+    private void checkForLatestPrescription(){
+        if(userInput){
+            if(!latestPrescriptionReceived){
+                if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+                    new GetLatestPrescriptionTask().execute(true);
+                }else{
+                    cannotVerifyDose().show();
+                }
+            }
+        }else{
+            userInput = true; //reset to true as this is just a screen rotation
+        }
+    }
+
     public String getFormulation(String regularDrug){
         if(regularDrug.contains("Tablet")){
             return "tablet";
@@ -196,10 +238,10 @@ public class DoseInputActivity extends Activity implements Serializable{
     }
 
     public void showBreakthroughDose(View view){
+        Log.e("!!!!! in show breakthrough", " !!!!!!!!");
         regularDose = false;
-        if(!HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
-            cannotVerifyDose().show();
-        }
+        logDosesMessageDisplayed = false;
+        checkForLatestPrescription();
         regular_dose.setBackgroundResource(R.drawable.button_opaque);
         breakthrough_dose.setBackgroundResource(R.drawable.button_opaque_selected);
         Prescription prescription = user.getPrescription();
@@ -295,6 +337,68 @@ public class DoseInputActivity extends Activity implements Serializable{
         return alertDialogBuilder.create();
     }
 
+//    private void errorGettingLatestDoses(){
+//        final AlertDialog dialog = new AlertDialog.Builder(DoseInputActivity.this)
+//                .setIcon(R.drawable.wifi)
+//                .setTitle(R.string.cannot_verify_dose_title)
+//                .setMessage(R.string.cannot_verify_dose)
+//                .setNegativeButton("Try again", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialogInterface, int id) {
+//                        new GetLatestPrescriptionTask().execute();
+//                        dialogInterface.cancel();
+//                    }
+//                })
+//                .setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialogInterface, int id) {
+//                        dialogInterface.cancel();
+//                    }
+//                }).create();
+//        setSendDoseAlertBoxButtons(dialog);
+//        dialog.show();
+//    }
+
+    private class GetLatestPrescriptionTask extends AsyncTask<Boolean, Void, User> {
+        long timeStarted;
+        ProgressDialog pd;
+
+        @Override
+        protected User doInBackground(Boolean... params) {
+            if(params[0]){
+                timeStarted = System.currentTimeMillis();
+                pd = new ProgressDialog(context);
+                pd.setTitle(R.string.getting_doses);
+                pd.setMessage("Please wait.");
+                pd.setCancelable(false);
+                pd.setIndeterminate(true);
+                pd.show();
+            }
+            Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
+            if(prescription == null){ //error
+                return null;
+            }
+            user.setPrescription(prescription);
+            return user;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            if (pd!=null) {
+                while(System.currentTimeMillis() < timeStarted + 2000){
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+                        Log.e("DoseInputActivity.GetLatestPrescriptionTask", "InterruptedException in onPostExecute", ex);
+                    }
+                }
+                pd.dismiss();
+            }
+            if(user != null){
+                latestPrescriptionReceived = true;
+                saveUser(user);
+            }
+        }
+    }
+
     public class ReadPrescriptionTask extends AsyncTask<String, Void, Void> {
         MorphidoseContract morphidoseContract;
         SQLiteDatabase db;
@@ -305,8 +409,6 @@ public class DoseInputActivity extends Activity implements Serializable{
 
         @Override
         protected Void doInBackground(String ...params) {
-            Log.e("in read rx ", "");
-
             db = mDbHelper.getReadableDatabase();
             morphidoseContract = new MorphidoseContract();
             projection = morphidoseContract.getPrescriptionProjectionValues();
@@ -336,7 +438,11 @@ public class DoseInputActivity extends Activity implements Serializable{
                 Intent setUpActivity = new Intent(getApplicationContext(), SetUpActivity.class);
                 startActivityForResult(setUpActivity, SET_UP_REQUEST);
             }else{
+                if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+                    new GetLatestPrescriptionTask().execute(false);
+                }
                 registered = true;
+                Log.e("!!!!! in ReadRxTask if user registered", " !!!!!!!!");
                 loadPage();
             }
         }
@@ -369,6 +475,11 @@ public class DoseInputActivity extends Activity implements Serializable{
         setBottomMessage(dosesInDatabase);
     }
 
+    private void saveUser(User user){
+        new WritePrescriptionTask(user).execute(mDbHelper);
+    }
+
+
 
     public class NetworkReceiver extends BroadcastReceiver {
         @Override
@@ -379,7 +490,7 @@ public class DoseInputActivity extends Activity implements Serializable{
                     setDosesInDatabase(dosesInDatabase);
                 }
                 else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION) && HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager) && dosesInDatabase) {
-                        callSendDosesIntentService(false);
+                    callSendDosesIntentService(false);
                 }
             }
         }
