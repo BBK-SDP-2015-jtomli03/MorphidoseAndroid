@@ -96,10 +96,12 @@ public class DoseInputActivity extends Activity implements Serializable{
         if(user == null){
             new ReadPrescriptionTask().execute();
         }else if(!latestPrescriptionReceived && HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+            Log.e("!!!!! in onStart", " -> getlatestRXtask !!!!!!!!");
             new GetLatestPrescriptionTask().execute(false);
-        }else{
-            loadPage();
         }
+//        else{
+//            loadPage();
+//        }
     }
 
     @Override
@@ -144,7 +146,9 @@ public class DoseInputActivity extends Activity implements Serializable{
             regularDose = sharedPreferences.getBoolean(REGULAR, false);
             logDosesMessageDisplayed = sharedPreferences.getBoolean(LOG_DOSES_MESSAGE, true);
             setBottomMessage(dosesInDatabase);
+            Log.e("!!!!! in loadPage","logdosesmessage = " + logDosesMessageDisplayed + " !!!!!!!!");
             if(logDosesMessageDisplayed || !created){
+                logDosesMessageDisplayed = true;
                 centreMessage.setText(R.string.log_doses);
             }
             else if(regularDose){
@@ -215,7 +219,7 @@ public class DoseInputActivity extends Activity implements Serializable{
     }
 
     private void checkForLatestPrescription(){
-        if(userInput){
+        if(userInput && !created){
             if(!latestPrescriptionReceived){
                 if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
                     new GetLatestPrescriptionTask().execute(true);
@@ -357,13 +361,25 @@ public class DoseInputActivity extends Activity implements Serializable{
 //        dialog.show();
 //    }
 
-    private class GetLatestPrescriptionTask extends AsyncTask<Boolean, Void, User> {
+    private class GetLatestPrescriptionTask extends AsyncTask<Boolean, Boolean, User> {
         long timeStarted;
         ProgressDialog pd;
+        boolean displayProgressDialog;
 
         @Override
         protected User doInBackground(Boolean... params) {
-            if(params[0]){
+            displayProgressDialog = params[0];
+            Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
+            if(prescription == null){ //error
+                return null;
+            }
+            user.setPrescription(prescription);
+            return user;
+        }
+
+        @Override
+        protected void onProgressUpdate(Boolean... params) {
+            if(displayProgressDialog){
                 timeStarted = System.currentTimeMillis();
                 pd = new ProgressDialog(context);
                 pd.setTitle(R.string.getting_doses);
@@ -372,12 +388,6 @@ public class DoseInputActivity extends Activity implements Serializable{
                 pd.setIndeterminate(true);
                 pd.show();
             }
-            Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
-            if(prescription == null){ //error
-                return null;
-            }
-            user.setPrescription(prescription);
-            return user;
         }
 
         @Override
@@ -438,7 +448,7 @@ public class DoseInputActivity extends Activity implements Serializable{
                 Intent setUpActivity = new Intent(getApplicationContext(), SetUpActivity.class);
                 startActivityForResult(setUpActivity, SET_UP_REQUEST);
             }else{
-                if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+                if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager) && !created){ //!created, ie. not just a screen rotation
                     new GetLatestPrescriptionTask().execute(false);
                 }
                 registered = true;

@@ -22,7 +22,7 @@ public class WritePrescriptionTask extends AsyncTask<MorphidoseDbHelper, Void, V
             db = params[0].getWritableDatabase();
             morphidoseContract = new MorphidoseContract();
             ContentValues values = morphidoseContract.createPrescriptionContentValues(user);
-            if (db.insert(MorphidoseContract.PrescriptionEntry.TABLE_NAME, null, values) != -1) {
+            if (db.insertWithOnConflict(MorphidoseContract.PrescriptionEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE) != -1) {
                 success = true;
             }
         }
