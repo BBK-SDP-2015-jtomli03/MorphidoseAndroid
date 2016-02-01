@@ -59,6 +59,8 @@ public class DoseInputActivity extends Activity implements Serializable{
     private Button breakthrough_dose;
     private Button regular_dose;
     private SharedPreferences sharedPreferences;
+    long timeStarted;
+    ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -98,10 +100,11 @@ public class DoseInputActivity extends Activity implements Serializable{
         }else if(!latestPrescriptionReceived && HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
             Log.e("!!!!! in onStart", " -> getlatestRXtask !!!!!!!!");
             new GetLatestPrescriptionTask().execute(false);
+            loadPage();
         }
-//        else{
-//            loadPage();
-//        }
+        else if(!created){
+            loadPage();
+        }
     }
 
     @Override
@@ -183,6 +186,7 @@ public class DoseInputActivity extends Activity implements Serializable{
             loadPage();
             registered = true;
             latestPrescriptionReceived = true;
+            created = true;
         }
         else if (resultCode == RESULT_CANCELED) {
             errorAlertBox().show();
@@ -203,6 +207,8 @@ public class DoseInputActivity extends Activity implements Serializable{
     }
 
     public void showRegularDose(View view){
+        Log.e("!!!!! in show regular dose", " !!!!!!!!");
+
         regularDose = true;
         logDosesMessageDisplayed = false;
         checkForLatestPrescription();
@@ -222,7 +228,15 @@ public class DoseInputActivity extends Activity implements Serializable{
         if(userInput && !created){
             if(!latestPrescriptionReceived){
                 if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){
+                    Log.e("!!!!! going to getLatestRXTask", " !!!!!!!!");
                     new GetLatestPrescriptionTask().execute(true);
+                    timeStarted = System.currentTimeMillis();
+                    pd = new ProgressDialog(context);
+                    pd.setTitle(R.string.getting_doses);
+                    pd.setMessage("Please wait.");
+                    pd.setCancelable(false);
+                    pd.setIndeterminate(true);
+                    pd.show();
                 }else{
                     cannotVerifyDose().show();
                 }
@@ -361,14 +375,10 @@ public class DoseInputActivity extends Activity implements Serializable{
 //        dialog.show();
 //    }
 
-    private class GetLatestPrescriptionTask extends AsyncTask<Boolean, Boolean, User> {
-        long timeStarted;
-        ProgressDialog pd;
-        boolean displayProgressDialog;
+    private class GetLatestPrescriptionTask extends AsyncTask<Boolean, Void, User> {
 
         @Override
         protected User doInBackground(Boolean... params) {
-            displayProgressDialog = params[0];
             Prescription prescription = HttpUtility.getHttpUtility().getUserPrescription(user);
             if(prescription == null){ //error
                 return null;
@@ -378,34 +388,27 @@ public class DoseInputActivity extends Activity implements Serializable{
         }
 
         @Override
-        protected void onProgressUpdate(Boolean... params) {
-            if(displayProgressDialog){
-                timeStarted = System.currentTimeMillis();
-                pd = new ProgressDialog(context);
-                pd.setTitle(R.string.getting_doses);
-                pd.setMessage("Please wait.");
-                pd.setCancelable(false);
-                pd.setIndeterminate(true);
-                pd.show();
-            }
-        }
-
-        @Override
         protected void onPostExecute(User user) {
-            if (pd!=null) {
-                while(System.currentTimeMillis() < timeStarted + 2000){
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
-                        Log.e("DoseInputActivity.GetLatestPrescriptionTask", "InterruptedException in onPostExecute", ex);
-                    }
-                }
-                pd.dismiss();
-            }
             if(user != null){
                 latestPrescriptionReceived = true;
                 saveUser(user);
+                dismissProgressDialog();
+            }else if(HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager)){ // bug with Spring android therefore on reconnnection to internet have to make call twice to succeed
+                new GetLatestPrescriptionTask().execute();
             }
+        }
+    }
+
+    public void dismissProgressDialog(){
+        if (pd!=null) {
+            while(System.currentTimeMillis() < timeStarted + 2000){
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Log.e("DoseInputActivity.GetLatestPrescriptionTask", "InterruptedException in onPostExecute", ex);
+                }
+            }
+            pd.dismiss();
         }
     }
 
