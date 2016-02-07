@@ -44,7 +44,7 @@ public class HttpUtility {
             if(e.getMessage().equals("patient.notfound")){
                 return null;
             }else{
-                Log.e("HttpUtility.getUserPrescription", e.getMessage(), e);
+                Log.e("RestClientException", " in HttpUtility.getUserPrescription. Error message; " + e.getMessage(), e);
             }
         }
         return null;

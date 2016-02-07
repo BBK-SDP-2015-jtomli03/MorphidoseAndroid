@@ -46,5 +46,6 @@
     <string name="cannot_verify_dose_title">Your Latest Doses Cannot be Verified</string>
     <string name="log_doses">Please log your breakthrough doses</string>
     <string name="getting_doses">We are just getting your latest doses.</string>
+    <string name="formulation_error">Sorry, there was an error obtaining your dose.</string>
 
 </resources>

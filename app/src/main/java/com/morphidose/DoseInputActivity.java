@@ -207,7 +207,11 @@ public class DoseInputActivity extends Activity implements Serializable{
         String formulation = getFormulation(regularDrug);
         String date = prescription.getDate();
         centreMessageTitle.setText(regularDrug + " " + regularDose);
-        centreMessage.setText("Take ONE " + formulation + " TWICE a day");
+        if(formulation != null){
+            centreMessage.setText("Take ONE " + formulation + " TWICE a day");
+        }else{
+            centreMessage.setText(R.string.formulation_error);
+        }
         centre_message_bottom.setText("(Prescribed on: " + date + ")");
     }
 
@@ -233,9 +237,10 @@ public class DoseInputActivity extends Activity implements Serializable{
     }
 
     public String getFormulation(String regularDrug){
-        if(regularDrug.contains("Tablet")){
+        regularDrug = regularDrug.toLowerCase();
+        if(regularDrug.contains("tablet")){
             return "tablet";
-        }else if(regularDrug.contains("Capsule")){
+        }else if(regularDrug.contains("capsule")){
             return "capsule";
         }
         return null;
@@ -263,8 +268,14 @@ public class DoseInputActivity extends Activity implements Serializable{
     }
 
     public String getOramorphDose(String breakthroughDose){
-        double doseInMg = Double.parseDouble(breakthroughDose.substring(0,breakthroughDose.length() - 2));
-        return "Take ONE " + doseInMg/2 + "ml dose when required for breakthrough pain";
+        Double doseInMg = Double.parseDouble(breakthroughDose.substring(0,breakthroughDose.length() - 2))/2;
+        Number doseToReturn;
+        if(doseInMg % Math.floor(doseInMg) == 0){
+            doseToReturn = Math.round(doseInMg);
+        }else{
+            doseToReturn = doseInMg;
+        }
+        return "Take ONE " + doseToReturn + "ml dose when required for breakthrough pain";
     }
 
     public void addDose(View view){
@@ -369,7 +380,7 @@ public class DoseInputActivity extends Activity implements Serializable{
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
-                    Log.e("DoseInputActivity.GetLatestPrescriptionTask", "InterruptedException in onPostExecute", ex);
+                    Log.e("InterruptedException", "In GetLatestPrescriptionTask onPostExecute", ex);
                 }
             }
             pd.dismiss();

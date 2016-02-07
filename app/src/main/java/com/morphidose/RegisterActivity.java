@@ -157,7 +157,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    private boolean isPrescriptionEmpty(Prescription prescription){
+    public boolean isPrescriptionEmpty(Prescription prescription){
         return prescription.getPrescriber().equals("");
     }
 

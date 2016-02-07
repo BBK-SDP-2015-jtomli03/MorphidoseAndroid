@@ -11,6 +11,16 @@ public class Prescription implements Serializable {
     private String breakthroughDrug;
     private String breakthroughDose;
 
+    public Prescription(){}
+
+    public Prescription(String prescriber, String date, String mrdrug, String mrdose, String breakthroughDrug, String breakthroughDose){
+        this.prescriber = prescriber;
+        this.date =date;
+        this.mrdrug = mrdrug;
+        this.mrdose = mrdose;
+        this.breakthroughDrug = breakthroughDrug;
+        this.breakthroughDose = breakthroughDose;
+    }
 
     public String getPrescriber() {
         return prescriber;
