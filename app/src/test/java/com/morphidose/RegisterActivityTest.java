@@ -1,7 +1,6 @@
 package com.morphidose;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -13,7 +12,7 @@ public class RegisterActivityTest {
     public Prescription prescription;
 
     @Before
-    public void before(){
+    public void setUp(){
         registerActivity = new RegisterActivity();
         prescription = new Prescription("", "", "", "", "", "");
     }

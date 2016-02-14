@@ -12,7 +12,7 @@ public class DoseInputActivityTest{
     public static DoseInputActivity doseInputActivity;
 
     @BeforeClass
-    public static void before(){
+    public static void setUp(){
         doseInputActivity = new DoseInputActivity();
     }
 

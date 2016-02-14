@@ -128,33 +128,49 @@ public class DoseInputActivity extends Activity implements Serializable{
 
     public void loadPage(){
         setContentView(R.layout.dose_input_view);
+        initialiseViewVariables();
+        if(registered) {
+            setSavedView();
+        }else{
+            setInitialView();
+        }
+    }
+
+    public void setSavedView(){
+        getSharedPreferencesAndSetVariables();
+        setBottomMessage(dosesInDatabase);
+        if(logDosesMessageDisplayed || !created){
+            logDosesMessageDisplayed = true;
+            centreMessage.setText(R.string.log_doses);
+        }
+        else if(regularDose){
+            userInput = false;
+            showRegularDose(regular_dose);
+        }else{
+            userInput = false;
+            showBreakthroughDose(breakthrough_dose);
+        }
+    }
+
+    public void setInitialView(){
+        centreMessageTitle.setText(R.string.registration_successful);
+        centreMessage.setText(R.string.dose_intro);
+        bottomMessage.setText(R.string.log_dose);
+    }
+
+    public void getSharedPreferencesAndSetVariables(){
+        dosesInDatabase = sharedPreferences.getBoolean(DOSES_IN_DATABASE, false);
+        regularDose = sharedPreferences.getBoolean(REGULAR, false);
+        logDosesMessageDisplayed = sharedPreferences.getBoolean(LOG_DOSES_MESSAGE, true);
+    }
+
+    public void initialiseViewVariables(){
         centreMessageTitle = (TextView)findViewById(R.id.centre_message_title);
         centreMessage = (TextView)findViewById(R.id.centre_message);
         centre_message_bottom = (TextView)findViewById(R.id.centre_message_bottom);
         bottomMessage = (TextView)findViewById(R.id.bottom_message);
         breakthrough_dose = (Button)findViewById(R.id.breakthrough_dose);
         regular_dose = (Button)findViewById(R.id.regular_dose);
-        if(registered) {
-            dosesInDatabase = sharedPreferences.getBoolean(DOSES_IN_DATABASE, false);
-            regularDose = sharedPreferences.getBoolean(REGULAR, false);
-            logDosesMessageDisplayed = sharedPreferences.getBoolean(LOG_DOSES_MESSAGE, true);
-            setBottomMessage(dosesInDatabase);
-            if(logDosesMessageDisplayed || !created){
-                logDosesMessageDisplayed = true;
-                centreMessage.setText(R.string.log_doses);
-            }
-            else if(regularDose){
-                userInput = false;
-                showRegularDose(regular_dose);
-            }else{
-                userInput = false;
-                showBreakthroughDose(breakthrough_dose);
-            }
-        }else{
-            centreMessageTitle.setText(R.string.registration_successful);
-            centreMessage.setText(R.string.dose_intro);
-            bottomMessage.setText(R.string.log_dose);
-        }
     }
 
     public void registerNetworkReceiver(){
@@ -444,6 +460,7 @@ public class DoseInputActivity extends Activity implements Serializable{
         sendDosesIntent.putExtra(SendDosesIntentService.USER_INPUT_DOSE, userInputDose);
         sendDosesIntent.putExtra(SendDosesIntentService.MOST_RECENT_DOSE, mostRecentDose);
         sendDosesIntent.putExtra(SendDosesIntentService.DOSES_IN_DATABASE, dosesInDatabase);
+        dosesInDatabase = false; //set here as a check to see whether anything has changed since SendDosesIntentService was called & the return of dosesInDatabase from the service -> if returned value = false but this instance = true, then dosesInDatabase = true.
         startService(sendDosesIntent);
     }
 
@@ -473,8 +490,8 @@ public class DoseInputActivity extends Activity implements Serializable{
         public void onReceive(Context context, Intent intent) {
             if(registered){
                 if(intent.getAction().equals(SendDosesIntentService.BROADCAST_MESSAGE)) {
-                    final boolean dosesInDatabase = intent.getExtras().getBoolean(SendDosesIntentService.RESULT);
-                    setDosesInDatabase(dosesInDatabase);
+                    final boolean dosesInDatabaseReturned = intent.getExtras().getBoolean(SendDosesIntentService.RESULT);
+                    setDosesInDatabase(dosesInDatabase || dosesInDatabaseReturned);
                 }
                 else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION) && HttpUtility.getHttpUtility().isConnectedToInternet(connectivityManager) && dosesInDatabase) {
                     callSendDosesIntentService(false);

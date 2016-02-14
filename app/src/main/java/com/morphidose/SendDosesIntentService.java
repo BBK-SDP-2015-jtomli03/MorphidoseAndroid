@@ -84,8 +84,12 @@ public class SendDosesIntentService extends IntentService {
     }
 
     private void deleteSentDosesFromDatabase(Dose dose){
-        new DeleteDoseTask(dose).execute(mDbHelper);
-        dosesInDatabase = false;
+        new DeleteDoseTask(dose, new BooleanHandler() {
+            @Override
+            public void handleBoolean(Boolean result) {
+                dosesInDatabase = result;
+            }
+        }).execute(mDbHelper);
     }
 
     private void saveDose(Dose dose){
