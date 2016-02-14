@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class WriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, String[]> {
+public class WriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, Void> {
     MorphidoseContract morphidoseContract;
     Dose dose;
     SQLiteDatabase db;
@@ -17,25 +17,26 @@ public class WriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, String[]>
     }
 
     @Override
-    protected String[] doInBackground(MorphidoseDbHelper ...params) {
+    protected Void doInBackground(MorphidoseDbHelper ...params) {
         Boolean success = false;
-        while(!success) {
+        //while(!success) {
             db = params[0].getWritableDatabase();
             morphidoseContract = new MorphidoseContract();
             ContentValues values = morphidoseContract.createDoseContentValues(dose);
             try{
-                if(db.insertOrThrow(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1){
-                    success = true;
-                }
+//                if(db.insertOrThrow(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1){
+//                    success = true;
+//                }
+                db.insertOrThrow(MorphidoseContract.DoseEntry.TABLE_NAME, null, values);
             }catch(SQLiteConstraintException ex){
-                Log.e("SQLiteConstraintException in WriteDoseTask.doInBackground", ex.getMessage(), ex);
+                Log.e("SQLiteConstraintEx", "SQLiteConstraintException in WriteDoseTask.doInBackground", ex);
             }
-        }
+        //}
         return null;
     }
 
     @Override
-    protected void onPostExecute(String[] param) {
+    protected void onPostExecute(Void param) {
         db.close();
     }
 }

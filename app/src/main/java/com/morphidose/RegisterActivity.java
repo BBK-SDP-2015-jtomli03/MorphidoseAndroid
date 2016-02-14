@@ -138,7 +138,7 @@ public class RegisterActivity extends Activity implements View.OnClickListener {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException ex) {
-                        Log.e("ResgisterActivity.RegisterUserTask", "InterruptedException in onPostExecute", ex);
+                        Log.e("InterruptedException", "InterruptedException in RegisterUserTask.onPostExecute", ex);
                     }
                 }
                 pd.dismiss();

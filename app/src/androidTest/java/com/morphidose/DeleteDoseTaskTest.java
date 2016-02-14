@@ -59,7 +59,8 @@ public class DeleteDoseTaskTest {
     public void shouldHandleDeleteDoseTaskCorrectlyIfNoDosesInDatabase() throws Exception {
         List<Dose> doses = new ArrayList<Dose>();
         getReadableDatabase();
-        deleteDoseTask.execute(morphidoseDbHelper);
+        deleteDoseTask.execute(morphidoseDbHelper).get(5000, TimeUnit.MILLISECONDS);
+        getReadableDatabase();
         String[] projection = morphidoseContract.getDoseProjectionValues();
         Cursor cursor = db.query(MorphidoseContract.DoseEntry.TABLE_NAME, projection, null, null, null, null, null);
         if (cursor != null && cursor.moveToFirst()){
