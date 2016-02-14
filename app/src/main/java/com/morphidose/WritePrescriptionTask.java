@@ -1,8 +1,10 @@
 package com.morphidose;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.util.Log;
 
 
 public class WritePrescriptionTask extends AsyncTask<MorphidoseDbHelper, Void, Void> {
@@ -17,15 +19,21 @@ public class WritePrescriptionTask extends AsyncTask<MorphidoseDbHelper, Void, V
 
     @Override
     protected Void doInBackground(MorphidoseDbHelper ...params) {
-        Boolean success = false;
-        while(!success) {
+        //Boolean success = false;
+        //while(!success) {
             db = params[0].getWritableDatabase();
             morphidoseContract = new MorphidoseContract();
             ContentValues values = morphidoseContract.createPrescriptionContentValues(user);
-            if (db.insertWithOnConflict(MorphidoseContract.PrescriptionEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE) != -1) {
-                success = true;
+//            if (db.insertWithOnConflict(MorphidoseContract.PrescriptionEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE) != -1) {
+//                success = true;
+//            }
+
+            try{
+                db.insertWithOnConflict(MorphidoseContract.PrescriptionEntry.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+            }catch(SQLiteConstraintException ex){
+                Log.e("SQLiteConstraintEx", "SQLiteConstraintException in WritePrescriptionTask.doInBackground", ex);
             }
-        }
+        //}
         return null;
     }
 
