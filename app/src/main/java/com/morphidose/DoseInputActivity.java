@@ -59,8 +59,8 @@ public class DoseInputActivity extends Activity implements Serializable{
     private Button breakthrough_dose;
     private Button regular_dose;
     private SharedPreferences sharedPreferences;
-    long timeStarted;
-    ProgressDialog pd;
+    private long timeStarted;
+    private ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -482,7 +482,6 @@ public class DoseInputActivity extends Activity implements Serializable{
     private void saveUser(User user){
         new WritePrescriptionTask(user).execute(mDbHelper);
     }
-
 
 
     public class NetworkReceiver extends BroadcastReceiver {
