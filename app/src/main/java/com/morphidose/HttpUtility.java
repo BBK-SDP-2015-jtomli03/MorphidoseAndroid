@@ -38,6 +38,7 @@ public class HttpUtility {
     }
 
     public Prescription getUserPrescription(User user){
+        Log.e("in!!!!!!!!!!!", "!!!!!!!!!!!!!");
         try {
             return HttpUtility.getHttpUtility().getRestTemplate().postForObject(URL_FOR_POST_USER, user, Prescription.class);
         } catch (RestClientException e) {
