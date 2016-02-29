@@ -24,6 +24,7 @@ public class SendDosesIntentService extends IntentService {
     private Dose mostRecentDose;
     private boolean userInputDose;
     private boolean dosesInDatabase;
+    private SendDosesIntentService service = this;
 
     public SendDosesIntentService() {
         super("SendDosesIntentService");
@@ -37,9 +38,6 @@ public class SendDosesIntentService extends IntentService {
         mDbHelper = new MorphidoseDbHelper(getApplicationContext());
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         sendDoses();
-        Intent broadcastIntent = new Intent(BROADCAST_MESSAGE);
-        broadcastIntent.putExtra(RESULT, dosesInDatabase);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
     }
 
     private void sendDoses(){
@@ -88,6 +86,9 @@ public class SendDosesIntentService extends IntentService {
             @Override
             public void handleBoolean(Boolean result) {
                 dosesInDatabase = result;
+                Intent broadcastIntent = new Intent(BROADCAST_MESSAGE);
+                broadcastIntent.putExtra(RESULT, dosesInDatabase);
+                LocalBroadcastManager.getInstance(service).sendBroadcast(broadcastIntent);
             }
         }).execute(mDbHelper);
     }
