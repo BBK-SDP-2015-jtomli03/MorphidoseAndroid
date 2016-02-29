@@ -219,7 +219,7 @@ public class DoseInputActivity extends Activity implements Serializable{
         regular_dose.setBackgroundResource(R.drawable.button_opaque_selected);
         Prescription prescription = user.getPrescription();
         String regularDrug = prescription.getMRDrug();
-        String regularDose = prescription.getMRDose();
+        String regularDose = getRegularDose(prescription);
         String formulation = getFormulation(regularDrug);
         String date = prescription.getDate();
         centreMessageTitle.setText(regularDrug + " " + regularDose);
@@ -252,12 +252,22 @@ public class DoseInputActivity extends Activity implements Serializable{
         }
     }
 
+    public String getRegularDose(Prescription prescription){
+        String regularDose = prescription.getMRDose();
+        if(regularDose.contains(".0mg")){
+            regularDose = regularDose.replace(".0", "");
+        }
+        return regularDose;
+    }
+
     public String getFormulation(String regularDrug){
         regularDrug = regularDrug.toLowerCase();
         if(regularDrug.contains("tablet")){
             return "tablet";
         }else if(regularDrug.contains("capsule")){
             return "capsule";
+        }else if(regularDrug.contains("suspension")){
+            return "sachet as directed";
         }
         return null;
     }
@@ -276,6 +286,7 @@ public class DoseInputActivity extends Activity implements Serializable{
             breakthroughDrug = breakthroughDrug + " Solution";
             breakthroughDose = getOramorphDose(breakthroughDose);
         }else{
+            breakthroughDrug = breakthroughDrug + " " + breakthroughDose;
             breakthroughDose = "Take ONE tablet when required for breakthrough pain";
         }
         centreMessageTitle.setText(breakthroughDrug);
