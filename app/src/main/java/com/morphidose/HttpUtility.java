@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class HttpUtility {
     private static HttpUtility httpUtility = new HttpUtility();
-    private static final String BASE_URL = "http://192.168.0.17:9000/patient/";
+    private static final String BASE_URL = "http://localhost/patient/";
     private static final String URL_FOR_POST_USER = BASE_URL + "prescription";
     private static final String URL_FOR_POST_DOSES = BASE_URL + "doses";
     private RestTemplate restTemplate;
@@ -38,7 +38,6 @@ public class HttpUtility {
     }
 
     public Prescription getUserPrescription(User user){
-        Log.e("in!!!!!!!!!!!", "!!!!!!!!!!!!!");
         try {
             return HttpUtility.getHttpUtility().getRestTemplate().postForObject(URL_FOR_POST_USER, user, Prescription.class);
         } catch (RestClientException e) {
