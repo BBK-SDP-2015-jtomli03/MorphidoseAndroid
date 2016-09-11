@@ -5,11 +5,14 @@ import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.web.client.RestTemplate;
 
 import static org.mockito.Mockito.*;
@@ -24,9 +27,15 @@ import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.test.espresso.matcher.RootMatchers.isDialog;
 
-public class RegisterActivityTest {
+@RunWith(AndroidJUnit4.class)
+@MediumTest
+public class RegisterActivityInstrumentationTest {
     private static WifiManager wifiManager;
     private static String hospitalNumber = "A051942";
+
+    public static boolean wifiConnected(){
+        return wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED;
+    }
 
     @Rule
     public ActivityTestRule<RegisterActivity> mRegisterActivityTestRule =
@@ -46,10 +55,16 @@ public class RegisterActivityTest {
 
     @Test
     public void displaysTheEditTextField() throws Exception {
+        if (!wifiConnected()) {
+            wifiManager.setWifiEnabled(true);
+        }
         onView(withId(R.id.EditTextHospitalNumber)).check(matches(isDisplayed()));
     }
 
     @Test public void cancelButtonOnSubmitHospitalNumberAlertWorks() throws Exception {
+        if (!wifiConnected()) {
+            wifiManager.setWifiEnabled(true);
+        }
         Thread.sleep(1000);
         onView(withId(R.id.EditTextHospitalNumber))
                 .perform(typeText(hospitalNumber), closeSoftKeyboard());
@@ -63,6 +78,9 @@ public class RegisterActivityTest {
     }
 
     @Test public void displaysTheAlertDialogOnEnteringAHospitalNumberAndClickingSubmit() throws Exception {
+        if (!wifiConnected()) {
+            wifiManager.setWifiEnabled(true);
+        }
         onView(withId(R.id.EditTextHospitalNumber))
                 .perform(typeText(hospitalNumber), closeSoftKeyboard());
         onView(withId(R.id.ButtonSubmitHospitalNumber)).perform(click());
@@ -108,7 +126,7 @@ public class RegisterActivityTest {
         onView(withId(R.id.EditTextHospitalNumber)).check(matches(isDisplayed()));
     }
 
-    public static boolean wifiConnected(){
-        return wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED;
-    }
 }
+
+//user not found
+//prescription not found
