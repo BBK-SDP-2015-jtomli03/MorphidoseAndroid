@@ -63,7 +63,7 @@ public class WritePrescriptionTaskTest {
     public void shouldReplacePrescriptionCurrentlyInDatabaseWithNewPrescription() throws Exception {
         WritePrescriptionTask writePrescriptionTask = new WritePrescriptionTask(user);
         writePrescriptionTask.execute(morphidoseDbHelper);
-        WritePrescriptionTask writePrescriptionTask2 = new WritePrescriptionTask(user);
+        WritePrescriptionTask writePrescriptionTask2 = new WritePrescriptionTask(new User("2", new Prescription()));
         writePrescriptionTask2.execute(morphidoseDbHelper).get(5000, TimeUnit.MILLISECONDS);
         db = morphidoseDbHelper.getReadableDatabase();
         String[] projection = morphidoseContract.getPrescriptionProjectionValues();
@@ -76,6 +76,7 @@ public class WritePrescriptionTaskTest {
             cursor.close();
         }
         assertThat(hospitalNumbers.size(), is(1));
+        assertThat(hospitalNumbers.get(1), is("2"));
     }
 
 }

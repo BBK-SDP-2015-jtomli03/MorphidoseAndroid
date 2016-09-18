@@ -1,6 +1,5 @@
 package com.morphidose;
 
-
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.support.test.InstrumentationRegistry;
@@ -13,9 +12,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.web.client.RestTemplate;
-
-import static org.mockito.Mockito.*;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -38,7 +34,7 @@ public class RegisterActivityInstrumentationTest {
     }
 
     @Rule
-    public ActivityTestRule<RegisterActivity> mRegisterActivityTestRule =
+    public ActivityTestRule<RegisterActivity> registerActivityTestRule =
             new ActivityTestRule<RegisterActivity>(RegisterActivity.class);
 
     @BeforeClass
@@ -61,7 +57,7 @@ public class RegisterActivityInstrumentationTest {
         onView(withId(R.id.EditTextHospitalNumber)).check(matches(isDisplayed()));
     }
 
-    @Test public void cancelButtonOnSubmitHospitalNumberAlertWorks() throws Exception {
+    @Test public void cancelButtonOnSubmitHospitalNumberAlertReturnsToRegisterView() throws Exception {
         if (!wifiConnected()) {
             wifiManager.setWifiEnabled(true);
         }
@@ -125,8 +121,4 @@ public class RegisterActivityInstrumentationTest {
         Thread.sleep(3000);
         onView(withId(R.id.EditTextHospitalNumber)).check(matches(isDisplayed()));
     }
-
 }
-
-//user not found
-//prescription not found

@@ -24,7 +24,6 @@ public class SendDosesIntentService extends IntentService {
     private Dose mostRecentDose;
     private boolean userInputDose;
     private boolean dosesInDatabase;
-    private SendDosesIntentService service = this;
 
     public SendDosesIntentService() {
         super("SendDosesIntentService");
@@ -81,16 +80,20 @@ public class SendDosesIntentService extends IntentService {
         db.close();
     }
 
-    private void deleteSentDosesFromDatabase(Dose dose){
-        new DeleteDoseTask(dose, new BooleanHandler() {
+    public void deleteSentDosesFromDatabase(Dose dose){
+        new DeleteDoseTask(dose, getBooleanHandler()).execute(mDbHelper);
+    }
+
+    public BooleanHandler getBooleanHandler(){
+        return new BooleanHandler() {
             @Override
             public void handleBoolean(Boolean result) {
                 dosesInDatabase = result;
                 Intent broadcastIntent = new Intent(BROADCAST_MESSAGE);
                 broadcastIntent.putExtra(RESULT, dosesInDatabase);
-                LocalBroadcastManager.getInstance(service).sendBroadcast(broadcastIntent);
+                sendBroadcast(broadcastIntent);
             }
-        }).execute(mDbHelper);
+        };
     }
 
     private void saveDose(Dose dose){

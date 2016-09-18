@@ -17,19 +17,13 @@ public class DeleteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, Boolean>
 
     @Override
     protected Boolean doInBackground(MorphidoseDbHelper ...params) {
-        Boolean success = false;
         db = params[0].getWritableDatabase();
         morphidoseContract = new MorphidoseContract();
-//        while(!success) {
-            if(dose != null){
-                String selection = morphidoseContract.getSelectionClauseWhereDoseEntryDateIsLessThanOrEqualToPlaceholder();
-                String[] selectionArgs = {String.valueOf(dose.getDate().getTime())};
-//                if (db.delete(MorphidoseContract.DoseEntry.TABLE_NAME, selection, selectionArgs) != -1) {
-//                    success = true;
-//                }
-                return db.delete(MorphidoseContract.DoseEntry.TABLE_NAME, selection, selectionArgs) == -1;
-            }
-        //}
+        if(dose != null){
+            String selection = morphidoseContract.getSelectionClauseWhereDoseEntryDateIsLessThanOrEqualToPlaceholder();
+            String[] selectionArgs = {String.valueOf(dose.getDate().getTime())};
+            return db.delete(MorphidoseContract.DoseEntry.TABLE_NAME, selection, selectionArgs) == -1;
+        }
         return true;
     }
 

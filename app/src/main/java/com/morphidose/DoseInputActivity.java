@@ -122,7 +122,7 @@ public class DoseInputActivity extends Activity implements Serializable{
     public void onResume(){
         super.onResume();
         if(!recieverRegistered) {
-            registerNetworkReceiver();
+            recieverRegistered = registerNetworkReceiver();
         }
     }
 
@@ -173,11 +173,11 @@ public class DoseInputActivity extends Activity implements Serializable{
         regular_dose = (Button)findViewById(R.id.regular_dose);
     }
 
-    public void registerNetworkReceiver(){
+    public Boolean registerNetworkReceiver(){
         IntentFilter filter = new IntentFilter(SendDosesIntentService.BROADCAST_MESSAGE);
         registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
-        recieverRegistered = true;
+        registerReceiver(receiver, filter);
+        return true;
     }
 
     public void unregisterNetworkReceiver(){
@@ -185,9 +185,14 @@ public class DoseInputActivity extends Activity implements Serializable{
         recieverRegistered = false;
     }
 
+    public void setUser(User user){
+        this.user = user;
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_OK) {
-            user = (User) intent.getSerializableExtra(USER);
+            User registeredUser = (User) intent.getSerializableExtra(USER);
+            setUser(registeredUser);
             loadPage();
             registered = true;
             latestPrescriptionReceived = true;
@@ -357,6 +362,14 @@ public class DoseInputActivity extends Activity implements Serializable{
         });
     }
 
+    public void callSendDosesIntentService(boolean userInputDose){
+        sendDosesIntent.putExtra(SendDosesIntentService.USER_INPUT_DOSE, userInputDose);
+        sendDosesIntent.putExtra(SendDosesIntentService.MOST_RECENT_DOSE, mostRecentDose);
+        sendDosesIntent.putExtra(SendDosesIntentService.DOSES_IN_DATABASE, dosesInDatabase);
+        dosesInDatabase = false; //set here as a check to see whether anything has changed since SendDosesIntentService was called & the return of dosesInDatabase from the service -> if returned value = false but this instance = true, then dosesInDatabase = true.
+        startService(sendDosesIntent);
+    }
+
     private void doseAcceptedToast(){
         Toast toast = Toast.makeText(context, R.string.dose_submitted_success, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
@@ -437,7 +450,7 @@ public class DoseInputActivity extends Activity implements Serializable{
                 prescription.setMRDose(cursor.getString(4));
                 prescription.setBreakthroughDrug(cursor.getString(5));
                 prescription.setBreakthroughDose(cursor.getString(6));
-                user = new User(hospitalNumber, prescription);
+                setUser(new User(hospitalNumber, prescription));
                 cursor.close();
             }
             return null;
@@ -467,14 +480,6 @@ public class DoseInputActivity extends Activity implements Serializable{
         dosesInDatabase = true;
     }
 
-    public void callSendDosesIntentService(boolean userInputDose){
-        sendDosesIntent.putExtra(SendDosesIntentService.USER_INPUT_DOSE, userInputDose);
-        sendDosesIntent.putExtra(SendDosesIntentService.MOST_RECENT_DOSE, mostRecentDose);
-        sendDosesIntent.putExtra(SendDosesIntentService.DOSES_IN_DATABASE, dosesInDatabase);
-        dosesInDatabase = false; //set here as a check to see whether anything has changed since SendDosesIntentService was called & the return of dosesInDatabase from the service -> if returned value = false but this instance = true, then dosesInDatabase = true.
-        startService(sendDosesIntent);
-    }
-
     public void setBottomMessage(boolean dosesInDatabase){
         if(!dosesInDatabase){
             bottomMessage.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check_circle, 0, 0, 0);
@@ -493,7 +498,6 @@ public class DoseInputActivity extends Activity implements Serializable{
     private void saveUser(User user){
         new WritePrescriptionTask(user).execute(mDbHelper);
     }
-
 
     public class NetworkReceiver extends BroadcastReceiver {
         @Override

@@ -1,6 +1,5 @@
 package com.morphidose;
 
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;

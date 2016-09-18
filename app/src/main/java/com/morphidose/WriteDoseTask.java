@@ -18,20 +18,14 @@ public class WriteDoseTask extends AsyncTask<MorphidoseDbHelper, Void, Void> {
 
     @Override
     protected Void doInBackground(MorphidoseDbHelper ...params) {
-        Boolean success = false;
-        //while(!success) {
             db = params[0].getWritableDatabase();
             morphidoseContract = new MorphidoseContract();
             ContentValues values = morphidoseContract.createDoseContentValues(dose);
             try{
-//                if(db.insertOrThrow(MorphidoseContract.DoseEntry.TABLE_NAME, null, values) != -1){
-//                    success = true;
-//                }
                 db.insertOrThrow(MorphidoseContract.DoseEntry.TABLE_NAME, null, values);
             }catch(SQLiteConstraintException ex){
                 Log.e("SQLiteConstraintEx", "SQLiteConstraintException in WriteDoseTask.doInBackground", ex);
             }
-        //}
         return null;
     }
 

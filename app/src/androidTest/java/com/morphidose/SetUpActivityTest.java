@@ -11,6 +11,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -50,12 +51,12 @@ public class SetUpActivityTest {
     }
 
     @Test
-    public void checkGoToRegisterUserViewButtonIsNotDisplayedUnlessNetworkConnectivity() throws Exception {
+    public void ifNoNetworkConnectivityTheConnectToWifiMessageIsDisplayed() throws Exception {
         if (wifiConnected()) {
             wifiManager.setWifiEnabled(false);
         }
         Thread.sleep(1000);
-        onView(withId(R.id.GoToRegisterUserView)).check(matches(isDisplayed()));
+        onView(withText(R.string.connect_wifi)).check(matches(isDisplayed()));
     }
 
     @Test public void clickingGoToRegisterUserViewButtonStartsRegisterActivity() throws Exception {

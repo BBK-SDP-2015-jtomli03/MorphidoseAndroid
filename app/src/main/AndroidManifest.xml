@@ -16,7 +16,7 @@ package="com.morphidose" >
 
     <service
         android:name=".SendDosesIntentService"
-        android:exported="false"/>
+        android:exported="true"/>
     <activity
         android:name=".DoseInputActivity"
         android:label="@string/dose_input">
